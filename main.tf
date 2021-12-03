@@ -11,6 +11,6 @@ output "api_endpoint" {
 }
 
 # Tennis.
-module "tennis" {
-  source = "./modules/tennis"
-}
+# module "tennis" {
+#   source = "./modules/tennis"
+# }

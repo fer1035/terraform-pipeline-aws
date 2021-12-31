@@ -30,66 +30,66 @@ resource "aws_api_gateway_request_validator" "validator" {
   validate_request_parameters = true
 }
 
-resource "aws_api_gateway_method" "root-options" {
-  rest_api_id      = aws_api_gateway_rest_api.api.id
-  resource_id      = aws_api_gateway_rest_api.api.root_resource_id
-  http_method      = "OPTIONS"
-  authorization    = "NONE"
-  api_key_required = false
-}
-resource "aws_api_gateway_method_response" "root-options" {
-  rest_api_id = aws_api_gateway_rest_api.api.id
-  resource_id = aws_api_gateway_rest_api.api.root_resource_id
-  http_method = aws_api_gateway_method.root-options.http_method
-  status_code = "200"
-  response_models = {
-    "application/json" = "Empty"
-  }
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Headers" = true
-    "method.response.header.Access-Control-Allow-Methods" = true
-    "method.response.header.Access-Control-Allow-Origin"  = true
-  }
-}
-resource "aws_api_gateway_integration" "root-options" {
-  rest_api_id          = aws_api_gateway_rest_api.api.id
-  resource_id          = aws_api_gateway_rest_api.api.root_resource_id
-  http_method          = "OPTIONS"
-  type                 = "MOCK"
-  passthrough_behavior = "WHEN_NO_MATCH"
-  #   # Transforms the incoming XML request to JSON
-  #   request_templates = {
-  #     "application/xml" = <<EOF
-  # {
-  #    "body" : $input.json('$')
-  # }
-  # EOF
-  #   }
-  request_templates = {
-    "application/json" : "{\"statusCode\": 200}"
-  }
-}
-resource "aws_api_gateway_integration_response" "root-options" {
-  rest_api_id = aws_api_gateway_rest_api.api.id
-  resource_id = aws_api_gateway_rest_api.api.root_resource_id
-  http_method = aws_api_gateway_integration.root-options.http_method
-  status_code = "200"
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-    "method.response.header.Access-Control-Allow-Methods" = "'POST,OPTIONS'"
-    "method.response.header.Access-Control-Allow-Origin"  = "'*'"
-  }
-  #   # Transforms the backend JSON response to XML
-  #   response_templates = {
-  #     "application/xml" = <<EOF
-  # #set($inputRoot = $input.path('$'))
-  # <?xml version="1.0" encoding="UTF-8"?>
-  # <message>
-  #     $inputRoot.body
-  # </message>
-  # EOF
-  #   }
-}
+# resource "aws_api_gateway_method" "root-options" {
+#   rest_api_id      = aws_api_gateway_rest_api.api.id
+#   resource_id      = aws_api_gateway_rest_api.api.root_resource_id
+#   http_method      = "OPTIONS"
+#   authorization    = "NONE"
+#   api_key_required = false
+# }
+# resource "aws_api_gateway_method_response" "root-options" {
+#   rest_api_id = aws_api_gateway_rest_api.api.id
+#   resource_id = aws_api_gateway_rest_api.api.root_resource_id
+#   http_method = aws_api_gateway_method.root-options.http_method
+#   status_code = "200"
+#   response_models = {
+#     "application/json" = "Empty"
+#   }
+#   response_parameters = {
+#     "method.response.header.Access-Control-Allow-Headers" = true
+#     "method.response.header.Access-Control-Allow-Methods" = true
+#     "method.response.header.Access-Control-Allow-Origin"  = true
+#   }
+# }
+# resource "aws_api_gateway_integration" "root-options" {
+#   rest_api_id          = aws_api_gateway_rest_api.api.id
+#   resource_id          = aws_api_gateway_rest_api.api.root_resource_id
+#   http_method          = "OPTIONS"
+#   type                 = "MOCK"
+#   passthrough_behavior = "WHEN_NO_MATCH"
+#   #   # Transforms the incoming XML request to JSON
+#   #   request_templates = {
+#   #     "application/xml" = <<EOF
+#   # {
+#   #    "body" : $input.json('$')
+#   # }
+#   # EOF
+#   #   }
+#   request_templates = {
+#     "application/json" : "{\"statusCode\": 200}"
+#   }
+# }
+# resource "aws_api_gateway_integration_response" "root-options" {
+#   rest_api_id = aws_api_gateway_rest_api.api.id
+#   resource_id = aws_api_gateway_rest_api.api.root_resource_id
+#   http_method = aws_api_gateway_integration.root-options.http_method
+#   status_code = "200"
+#   response_parameters = {
+#     "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+#     "method.response.header.Access-Control-Allow-Methods" = "'POST,OPTIONS'"
+#     "method.response.header.Access-Control-Allow-Origin"  = "'*'"
+#   }
+#   #   # Transforms the backend JSON response to XML
+#   #   response_templates = {
+#   #     "application/xml" = <<EOF
+#   # #set($inputRoot = $input.path('$'))
+#   # <?xml version="1.0" encoding="UTF-8"?>
+#   # <message>
+#   #     $inputRoot.body
+#   # </message>
+#   # EOF
+#   #   }
+# }
 
 resource "aws_api_gateway_resource" "resource" {
   path_part   = "event"

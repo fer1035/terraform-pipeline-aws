@@ -199,6 +199,7 @@ output "api_execution_arn" {
 }
 
 output "api_endpoint" {
-  value     = "${aws_api_gateway_stage.stage.invoke_url}/${aws_api_gateway_resource.resource.path_part}"
+  # value     = "${aws_api_gateway_stage.stage.invoke_url}/${aws_api_gateway_resource.resource.path_part}"
+  value     = "${aws_api_gateway_stage.stage.invoke_url}/<endpoint-path-part>"
   sensitive = false
 }

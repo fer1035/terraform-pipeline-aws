@@ -15,18 +15,6 @@ variable "api_description" {
   default     = "Application security demo, deployed by Terraform."
 }
 
-variable "lambda_name" {
-  type        = string
-  description = "The name of the Lambda function."
-  default     = "tf_lambda"
-}
-
-variable "lambda_description" {
-  type        = string
-  description = "The description of the Lambda function."
-  default     = "Application security demo, deployed by Terraform."
-}
-
 variable "waf_name" {
   type        = string
   description = "The name of the Lambda function."

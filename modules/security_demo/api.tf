@@ -25,32 +25,74 @@ resource "aws_api_gateway_rest_api" "api" {
   }
 }
 
-resource "aws_api_gateway_model" "model" {
-  rest_api_id  = aws_api_gateway_rest_api.api.id
-  name         = "UserModel"
-  description  = "Request schema model."
-  content_type = "application/json"
-  schema       = <<EOF
-{
-  "$schema": "http://json-schema.org/draft-04/schema#",
-  "title": "UserModel",
-  "type": "object",
-  "required": ["myname"],
-  "properties": {
-    "myname": {
-      "type": "string"
-    }
-  },
-  "additionalProperties": false
-}
-EOF
-}
-
 resource "aws_api_gateway_request_validator" "validator" {
   name                        = "validator"
   rest_api_id                 = aws_api_gateway_rest_api.api.id
   validate_request_body       = true
   validate_request_parameters = true
+}
+
+# Root CORS.
+
+resource "aws_api_gateway_method" "options" {
+  rest_api_id      = aws_api_gateway_rest_api.api.id
+  resource_id      = aws_api_gateway_rest_api.api.root_resource_id
+  http_method      = "OPTIONS"
+  authorization    = "NONE"
+  api_key_required = false
+}
+resource "aws_api_gateway_method_response" "options" {
+  rest_api_id = aws_api_gateway_rest_api.api.id
+  resource_id = aws_api_gateway_rest_api.api.root_resource_id
+  http_method = aws_api_gateway_method.options.http_method
+  status_code = "200"
+  response_models = {
+    "application/json" = "Empty"
+  }
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Headers" = true
+    "method.response.header.Access-Control-Allow-Methods" = true
+    "method.response.header.Access-Control-Allow-Origin"  = true
+  }
+}
+resource "aws_api_gateway_integration" "options" {
+  rest_api_id          = aws_api_gateway_rest_api.api.id
+  resource_id          = aws_api_gateway_rest_api.api.root_resource_id
+  http_method          = "OPTIONS"
+  type                 = "MOCK"
+  passthrough_behavior = "WHEN_NO_MATCH"
+  #   # Transforms the incoming XML request to JSON
+  #   request_templates = {
+  #     "application/xml" = <<EOF
+  # {
+  #    "body" : $input.json('$')
+  # }
+  # EOF
+  #   }
+  request_templates = {
+    "application/json" : "{\"statusCode\": 200}"
+  }
+}
+resource "aws_api_gateway_integration_response" "options" {
+  rest_api_id = aws_api_gateway_rest_api.api.id
+  resource_id = aws_api_gateway_rest_api.api.root_resource_id
+  http_method = aws_api_gateway_integration.options.http_method
+  status_code = "200"
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+    "method.response.header.Access-Control-Allow-Methods" = "'POST,OPTIONS'"
+    "method.response.header.Access-Control-Allow-Origin"  = "'*'"
+  }
+  #   # Transforms the backend JSON response to XML
+  #   response_templates = {
+  #     "application/xml" = <<EOF
+  # #set($inputRoot = $input.path('$'))
+  # <?xml version="1.0" encoding="UTF-8"?>
+  # <message>
+  #     $inputRoot.body
+  # </message>
+  # EOF
+  #   }
 }
 
 resource "aws_api_gateway_deployment" "deployment" {
@@ -131,17 +173,28 @@ resource "aws_wafv2_web_acl_association" "waf_association" {
   web_acl_arn  = aws_wafv2_web_acl.waf_regional.arn
 }
 
-resource "aws_lambda_permission" "apigw_lambda" {
-  statement_id  = "AllowExecutionFromAPIGateway"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.function.function_name
-  principal     = "apigateway.amazonaws.com"
+## Outputs.
 
-  # More: http://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-control-access-using-iam-policies-to-invoke-api.html
-  source_arn = "${aws_api_gateway_rest_api.api.execution_arn}/*/${aws_api_gateway_method.method.http_method}/${aws_api_gateway_resource.resource.path_part}"
+output "api_root_id" {
+  value     = aws_api_gateway_rest_api.api.root_resource_id
+  sensitive = false
 }
 
-## Outputs.
+output "api_id" {
+  value     = aws_api_gateway_rest_api.api.id
+  sensitive = false
+}
+
+output "api_validator" {
+  value     = aws_api_gateway_request_validator.validator.id
+  sensitive = false
+}
+
+output "api_execution_arn" {
+  value     = aws_api_gateway_rest_api.api.execution_arn
+  sensitive = false
+}
+
 output "api_endpoint" {
   value     = "${aws_api_gateway_stage.stage.invoke_url}/${aws_api_gateway_resource.resource.path_part}"
   sensitive = false

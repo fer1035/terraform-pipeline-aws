@@ -20,9 +20,15 @@ jobs:
         run: |
           cd modules
           cd security_demo_endpoint/resources/
-          zip -r9 lambda_function.zip lambda_function.py
+          find . -exec touch -t "$(git ls-files -z . | \
+            xargs -0 -n1 -I{} -- git log -1 --date=format:"%Y%m%d%H%M" --format="%ad" '{}' | \
+            sort -r | head -n 1)" '{}' +
+          zip -rq -D -X -9 -A --compression-method deflate lambda_function.zip lambda_function.py
           cd ../../tennis/resources/
-          zip -r9 lambda_function.zip lambda_function.py
+          find . -exec touch -t "$(git ls-files -z . | \
+            xargs -0 -n1 -I{} -- git log -1 --date=format:"%Y%m%d%H%M" --format="%ad" '{}' | \
+            sort -r | head -n 1)" '{}' +
+          zip -rq -D -X -9 -A --compression-method deflate lambda_function.zip lambda_function.py
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1

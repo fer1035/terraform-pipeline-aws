@@ -25,7 +25,7 @@ def lambda_handler(event, context):
     else:
         status_code = 200
         status = (
-            'Howdy, {}! '
+            'Hello, {}! '
             'Here\'s your event: {} '
             .format(myname, event)
         )

@@ -24,11 +24,7 @@ def lambda_handler(event, context):
         status = 'Bad input.'
     else:
         status_code = 200
-        status = (
-            'Hello, {}! '
-            'Here\'s your event: {} '
-            .format(myname, event)
-        )
+        status = (f"Hello, {myname}! Here's your event: {event}")
 
     # Return response.
     return {

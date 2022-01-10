@@ -19,7 +19,7 @@ jobs:
         id: zip
         run: |
           cd modules
-          cd security_demo/resources/
+          cd security_demo_endpoint/resources/
           zip -r9 lambda_function.zip lambda_function.py
           cd ../../tennis/resources/
           zip -r9 lambda_function.zip lambda_function.py

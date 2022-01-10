@@ -25,27 +25,6 @@ resource "aws_api_gateway_rest_api" "api" {
   }
 }
 
-resource "aws_api_gateway_model" "model" {
-  rest_api_id  = aws_api_gateway_rest_api.api.id
-  name         = "UserModel"
-  description  = "Request schema model."
-  content_type = "application/json"
-  schema       = <<EOF
-{
-  "$schema": "http://json-schema.org/draft-04/schema#",
-  "title": "UserModel",
-  "type": "object",
-  "required": ["myname"],
-  "properties": {
-    "myname": {
-      "type": "string"
-    }
-  },
-  "additionalProperties": false
-}
-EOF
-}
-
 resource "aws_api_gateway_request_validator" "validator" {
   name                        = "validator"
   rest_api_id                 = aws_api_gateway_rest_api.api.id
@@ -53,22 +32,18 @@ resource "aws_api_gateway_request_validator" "validator" {
   validate_request_parameters = true
 }
 
-resource "aws_api_gateway_resource" "resource" {
-  path_part   = "event"
-  parent_id   = aws_api_gateway_rest_api.api.root_resource_id
-  rest_api_id = aws_api_gateway_rest_api.api.id
-}
+# Root CORS.
 
 resource "aws_api_gateway_method" "options" {
   rest_api_id      = aws_api_gateway_rest_api.api.id
-  resource_id      = aws_api_gateway_resource.resource.id
+  resource_id      = aws_api_gateway_rest_api.api.root_resource_id
   http_method      = "OPTIONS"
   authorization    = "NONE"
   api_key_required = false
 }
 resource "aws_api_gateway_method_response" "options" {
   rest_api_id = aws_api_gateway_rest_api.api.id
-  resource_id = aws_api_gateway_resource.resource.id
+  resource_id = aws_api_gateway_rest_api.api.root_resource_id
   http_method = aws_api_gateway_method.options.http_method
   status_code = "200"
   response_models = {
@@ -82,7 +57,7 @@ resource "aws_api_gateway_method_response" "options" {
 }
 resource "aws_api_gateway_integration" "options" {
   rest_api_id          = aws_api_gateway_rest_api.api.id
-  resource_id          = aws_api_gateway_resource.resource.id
+  resource_id          = aws_api_gateway_rest_api.api.root_resource_id
   http_method          = "OPTIONS"
   type                 = "MOCK"
   passthrough_behavior = "WHEN_NO_MATCH"
@@ -100,7 +75,7 @@ resource "aws_api_gateway_integration" "options" {
 }
 resource "aws_api_gateway_integration_response" "options" {
   rest_api_id = aws_api_gateway_rest_api.api.id
-  resource_id = aws_api_gateway_resource.resource.id
+  resource_id = aws_api_gateway_rest_api.api.root_resource_id
   http_method = aws_api_gateway_integration.options.http_method
   status_code = "200"
   response_parameters = {
@@ -120,39 +95,6 @@ resource "aws_api_gateway_integration_response" "options" {
   #   }
 }
 
-resource "aws_api_gateway_method" "method" {
-  rest_api_id      = aws_api_gateway_rest_api.api.id
-  resource_id      = aws_api_gateway_resource.resource.id
-  http_method      = "POST"
-  authorization    = "NONE"
-  api_key_required = true
-  request_models = {
-    "application/json" = aws_api_gateway_model.model.name
-  }
-  request_parameters = {
-    "method.request.header.x-api-key"    = true
-    "method.request.header.content-type" = true
-    "method.request.querystring.code"    = true
-  }
-  request_validator_id = aws_api_gateway_request_validator.validator.id
-}
-
-resource "aws_api_gateway_integration" "integration" {
-  rest_api_id             = aws_api_gateway_rest_api.api.id
-  resource_id             = aws_api_gateway_resource.resource.id
-  http_method             = aws_api_gateway_method.method.http_method
-  integration_http_method = "POST"
-  type                    = "AWS_PROXY"
-  uri                     = aws_lambda_function.function.invoke_arn
-}
-
-resource "aws_api_gateway_method_response" "response_200" {
-  rest_api_id = aws_api_gateway_rest_api.api.id
-  resource_id = aws_api_gateway_resource.resource.id
-  http_method = aws_api_gateway_method.method.http_method
-  status_code = "200"
-}
-
 resource "aws_api_gateway_deployment" "deployment" {
   rest_api_id = aws_api_gateway_rest_api.api.id
 
@@ -164,11 +106,14 @@ resource "aws_api_gateway_deployment" "deployment" {
     #       calculate a hash against whole resources. Be aware that using whole
     #       resources will show a difference after the initial implementation.
     #       It will stabilize to only change when resources change afterwards.
-    redeployment = sha1(jsonencode([
-      aws_api_gateway_resource.resource.id,
-      aws_api_gateway_method.method.id,
-      aws_api_gateway_integration.integration.id,
-    ]))
+    # redeployment = sha1(jsonencode([
+    #   aws_api_gateway_resource.resource.id,
+    #   aws_api_gateway_method.method.id,
+    #   aws_api_gateway_integration.integration.id,
+    # ]))
+    redeployment = filesha1(
+      "./modules/security_demo_endpoint/api_endpoint.tf"
+    )
   }
 
   lifecycle {
@@ -231,18 +176,29 @@ resource "aws_wafv2_web_acl_association" "waf_association" {
   web_acl_arn  = aws_wafv2_web_acl.waf_regional.arn
 }
 
-resource "aws_lambda_permission" "apigw_lambda" {
-  statement_id  = "AllowExecutionFromAPIGateway"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.function.function_name
-  principal     = "apigateway.amazonaws.com"
+## Outputs.
 
-  # More: http://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-control-access-using-iam-policies-to-invoke-api.html
-  source_arn = "${aws_api_gateway_rest_api.api.execution_arn}/*/${aws_api_gateway_method.method.http_method}/${aws_api_gateway_resource.resource.path_part}"
+output "api_root_id" {
+  value     = aws_api_gateway_rest_api.api.root_resource_id
+  sensitive = false
 }
 
-## Outputs.
-output "api_endpoint" {
-  value     = "${aws_api_gateway_stage.stage.invoke_url}/${aws_api_gateway_resource.resource.path_part}"
+output "api_id" {
+  value     = aws_api_gateway_rest_api.api.id
+  sensitive = false
+}
+
+output "api_validator" {
+  value     = aws_api_gateway_request_validator.validator.id
+  sensitive = false
+}
+
+output "api_execution_arn" {
+  value     = aws_api_gateway_rest_api.api.execution_arn
+  sensitive = false
+}
+
+output "api_url" {
+  value     = aws_api_gateway_stage.stage.invoke_url
   sensitive = false
 }

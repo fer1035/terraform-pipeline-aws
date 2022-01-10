@@ -106,11 +106,14 @@ resource "aws_api_gateway_deployment" "deployment" {
     #       calculate a hash against whole resources. Be aware that using whole
     #       resources will show a difference after the initial implementation.
     #       It will stabilize to only change when resources change afterwards.
-    redeployment = sha1(jsonencode([
-      aws_api_gateway_resource.resource.id,
-      aws_api_gateway_method.method.id,
-      aws_api_gateway_integration.integration.id,
-    ]))
+    # redeployment = sha1(jsonencode([
+    #   aws_api_gateway_resource.resource.id,
+    #   aws_api_gateway_method.method.id,
+    #   aws_api_gateway_integration.integration.id,
+    # ]))
+    redeployment = filesha1(
+      "./modules/security_demo_endpoint/api_endpoint.tf"
+    )
   }
 
   lifecycle {

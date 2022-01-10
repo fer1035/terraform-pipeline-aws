@@ -137,8 +137,6 @@ resource "aws_api_gateway_integration_response" "options" {
   #   }
 }
 
-# Outputs.
-
 output "api_endpoint" {
   value     = "${var.api_url}/${aws_api_gateway_resource.resource.path_part}"
   sensitive = false

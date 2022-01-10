@@ -25,7 +25,7 @@ variable "api_validator" {
   description = "The validator ID for the REST API in API Gateway."
 }
 
-variables "api_execution_arn" {
+variable "api_execution_arn" {
   type        = string
   description = "The execution ARN of the REST API in API Gateway."
 }

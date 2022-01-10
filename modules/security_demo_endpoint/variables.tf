@@ -29,3 +29,8 @@ variable "api_execution_arn" {
   type        = string
   description = "The execution ARN of the REST API in API Gateway."
 }
+
+variable "api_url" {
+  type        = string
+  description = "The invocation URL of the REST API in API Gateway."
+}

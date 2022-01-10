@@ -18,13 +18,12 @@ jobs:
       - name: ZIP Lambda function
         id: zip
         run: |
-          find . -exec touch -t "$(git ls-files -z . | \
-            xargs -0 -n1 -I{} -- git log -1 --date=format:"%Y%m%d%H%M" --format="%ad" '{}' | \
-            sort -r | head -n 1)" '{}' +
           cd modules
           cd security_demo_endpoint/resources/
+          touch -t 20200101000000 lambda_function.py
           zip -rq -D -X -9 -A --compression-method deflate lambda_function.zip lambda_function.py
           cd ../../tennis/resources/
+          touch -t 20200101000000 lambda_function.py
           zip -rq -D -X -9 -A --compression-method deflate lambda_function.zip lambda_function.py
 
       - name: Setup Terraform

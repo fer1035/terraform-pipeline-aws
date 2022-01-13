@@ -97,6 +97,7 @@ resource "aws_api_gateway_integration_response" "options" {
 
 resource "aws_api_gateway_deployment" "deployment" {
   rest_api_id = aws_api_gateway_rest_api.api.id
+  stage_name  = "test"
 
   triggers = {
     # NOTE: The configuration below will satisfy ordering considerations,
@@ -121,15 +122,16 @@ resource "aws_api_gateway_deployment" "deployment" {
   }
 }
 
-resource "aws_api_gateway_stage" "stage" {
-  deployment_id = aws_api_gateway_deployment.deployment.id
-  rest_api_id   = aws_api_gateway_rest_api.api.id
-  stage_name    = "test"
-}
+# resource "aws_api_gateway_stage" "stage" {
+#   deployment_id = aws_api_gateway_deployment.deployment.id
+#   rest_api_id   = aws_api_gateway_rest_api.api.id
+#   stage_name    = "test"
+# }
 
 resource "aws_api_gateway_method_settings" "all" {
   rest_api_id = aws_api_gateway_rest_api.api.id
-  stage_name  = aws_api_gateway_stage.stage.stage_name
+  # stage_name  = aws_api_gateway_stage.stage.stage_name
+  stage_name  = aws_api_gateway_deployment.deployment.stage_name
   method_path = "*/*"
 
   settings {
@@ -149,8 +151,9 @@ resource "aws_api_gateway_usage_plan" "usage_plan" {
   description = "API usage plan."
 
   api_stages {
-    api_id = aws_api_gateway_rest_api.api.id
-    stage  = aws_api_gateway_stage.stage.stage_name
+    api_id      = aws_api_gateway_rest_api.api.id
+    # stage  = aws_api_gateway_stage.stage.stage_name
+    stage  = aws_api_gateway_deployment.deployment.stage_name
   }
 
   quota_settings {
@@ -172,7 +175,8 @@ resource "aws_api_gateway_usage_plan_key" "plan_key" {
 }
 
 resource "aws_wafv2_web_acl_association" "waf_association" {
-  resource_arn = aws_api_gateway_stage.stage.arn
+  # resource_arn = aws_api_gateway_stage.stage.arn
+  resource_arn = "arn:aws:apigateway:${local.region}::/restapis/${aws_api_gateway_rest_api.api.id}/stages/${aws_api_gateway_deployment.deployment.stage_name}"
   web_acl_arn  = aws_wafv2_web_acl.waf_regional.arn
 }
 
@@ -199,6 +203,7 @@ output "api_execution_arn" {
 }
 
 output "api_url" {
-  value     = aws_api_gateway_stage.stage.invoke_url
+  # value     = aws_api_gateway_stage.stage.invoke_url
+  value     = "https://${aws_api_gateway_rest_api.api.id}.execute-api.${local.region}.amazonaws.com/${aws_api_gateway_deployment.deployment.stage_name}"
   sensitive = false
 }

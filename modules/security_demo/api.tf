@@ -176,7 +176,7 @@ resource "aws_api_gateway_usage_plan_key" "plan_key" {
 
 resource "aws_wafv2_web_acl_association" "waf_association" {
   # resource_arn = aws_api_gateway_stage.stage.arn
-  resource_arn = "arn:aws:apigateway:${local.region}::/apis/${aws_api_gateway_rest_api.api.id}/stages/${aws_api_gateway_deployment.deployment.stage_name}"
+  resource_arn = "arn:aws:apigateway:${local.region}::/restapis/${aws_api_gateway_rest_api.api.id}/stages/${aws_api_gateway_deployment.deployment.stage_name}"
   web_acl_arn  = aws_wafv2_web_acl.waf_regional.arn
 }
 

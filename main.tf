@@ -18,7 +18,7 @@ output "endpoint_01_url" {
   sensitive = false
 }
 
-# Tennis.
-# module "tennis" {
-#   source = "./modules/tennis"
-# }
+Tennis.
+module "tennis" {
+  source = "./modules/tennis"
+}

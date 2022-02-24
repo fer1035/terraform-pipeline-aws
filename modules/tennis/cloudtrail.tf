@@ -1,6 +1,6 @@
 resource "aws_s3_bucket" "bucket_trail" {
   bucket        = "pp-buckettrail-${local.region}-${local.account_id}"
-  acl           = "private"
+  # acl           = "private"
   force_destroy = true
   policy        = <<POLICY
 {

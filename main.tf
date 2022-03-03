@@ -19,6 +19,6 @@ output "endpoint_01_url" {
 }
 
 # Tennis.
-# module "tennis" {
-#   source = "./modules/tennis"
-# }
+module "tennis" {
+  source = "./modules/tennis"
+}

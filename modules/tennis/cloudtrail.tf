@@ -1,25 +1,38 @@
 resource "aws_s3_bucket" "bucket_trail" {
   bucket        = "pp-buckettrail-${local.region}-${local.account_id}"
-  # acl           = "private"
   force_destroy = true
-  policy        = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "cloudtrail.amazonaws.com"
-      },
-      "Action": "s3:*",
-      "Resource": [
-        "arn:aws:s3:::pp-buckettrail-${local.region}-${local.account_id}",
-        "arn:aws:s3:::pp-buckettrail-${local.region}-${local.account_id}/*"
-      ]
-    }
-  ]
 }
-POLICY
+
+resource "aws_s3_bucket_acl" "bucket_trail" {
+  bucket = aws_s3_bucket.bucket_trail.id
+  acl    = "private"
+}
+
+resource "aws_s3_bucket_policy" "allow_cloudtrail_access" {
+  bucket = aws_s3_bucket.bucket_trail.id
+  policy = data.aws_iam_policy_document.allow_cloudtrail_access.json
+}
+
+data "aws_iam_policy_document" "allow_cloudtrail_access" {
+  statement {
+    # principals {
+    #   type        = "AWS"
+    #   identifiers = ["123456789012"]
+    # }
+    principals {
+      type        = "Service"
+      identifiers = ["cloudtrail.amazonaws.com"]
+    }
+
+    actions = [
+      "s3:*"
+    ]
+
+    resources = [
+      "arn:aws:s3:::pp-buckettrail-${local.region}-${local.account_id}",
+      "arn:aws:s3:::pp-buckettrail-${local.region}-${local.account_id}/*"
+    ]
+  }
 }
 
 resource "aws_s3_bucket_public_access_block" "bucket_trail" {

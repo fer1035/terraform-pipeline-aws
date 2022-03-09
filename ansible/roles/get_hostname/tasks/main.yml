@@ -1,0 +1,4 @@
+- name: Get Hostname
+  command: hostname
+  register: get_output
+- debug: var=get_output.stdout

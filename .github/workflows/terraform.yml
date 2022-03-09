@@ -25,6 +25,11 @@ jobs:
           cd ../../tennis/resources/
           touch -t 202001010000 lambda_function.py
           zip -rq -D -X -9 -A --compression-method deflate lambda_function.zip lambda_function.py
+      
+      - name: Update Dockerfile
+        id: Dockerfile
+        run: |
+          sed -i s/"PUBKEY"/${{ secrets.ANSIBLE_PUBLIC_KEY }}/ docker/Dockerfile
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1

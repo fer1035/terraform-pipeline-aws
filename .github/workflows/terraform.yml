@@ -26,10 +26,11 @@ jobs:
           touch -t 202001010000 lambda_function.py
           zip -rq -D -X -9 -A --compression-method deflate lambda_function.zip lambda_function.py
       
-      - name: Update Dockerfile
+      - name: Create Ansible credentials.
         id: Dockerfile
         run: |
-          sed -i 's|PUBKEY|${{ secrets.ANSIBLE_PUBLIC_KEY }}|' docker/Dockerfile
+          echo "${{ secrets.ANSIBLE_PRIVATE_KEY }}" > docker/id_rsa
+          echo "${{ secrets.ANSIBLE_PUBLIC_KEY }}" > docker/id_rsa.pub
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1

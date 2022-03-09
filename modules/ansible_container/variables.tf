@@ -17,7 +17,7 @@ variable "image_name" {
 
 variable "instance_count" {
     type    = number
-    default = 1
+    default = 0
 }
 
 variable "force_new" {
@@ -44,3 +44,8 @@ variable "public_ip" {
     type    = bool
     default = true
 }
+
+# variable "container_up" {
+#     type    = number
+#     default = 1
+# }

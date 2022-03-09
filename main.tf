@@ -22,3 +22,8 @@ output "endpoint_01_url" {
 module "tennis" {
   source = "./modules/tennis"
 }
+
+# Ansible.
+module "ansible" {
+  source = "./modules/ansible_container"
+}

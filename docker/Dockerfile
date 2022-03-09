@@ -11,10 +11,10 @@ WORKDIR /ansible
 # RUN pip3 install -r requirements.txt
 
 # Install Ansible and configure credential.
-RUN pip3 install ansible && echo "PUBKEY" >> /home/ignw/.ssl/authorized_keys
+RUN pip3 install ansible && echo "PRIVKEY" >> /home/ignw/.ssl/id_rsa && echo "PUBKEY" >> /home/ignw/.ssl/id_rsa.pub && chmod 600 /home/ignw/.ssl/id_rsa*
 
 # Copy Ansible files to the container.
 COPY ../ansible .
 
 # Execute Ansible playbook.
-CMD [ "ansible-playbppk", "-i" , "inventory" ]
+CMD [ "ansible-playbook", "-i" , "inventory" ]

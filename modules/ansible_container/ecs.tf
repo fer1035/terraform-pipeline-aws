@@ -4,7 +4,7 @@ resource "aws_ecs_task_definition" "task" {
   cpu                      = 256
   memory                   = 512
   execution_role_arn       = "arn:aws:iam::${local.account_id}:role/ecsTaskExecutionRole"
-#   network_mode             = "awsvpc"
+  network_mode             = "awsvpc"
 
   container_definitions    = jsonencode([
     {
@@ -36,9 +36,9 @@ resource "aws_ecs_service" "service" {
 #     container_port   = 8080
 #   }
 
-#   network_configuration {
-#       subnets = ["<public_subnet_id_1>", "<public_subnet_id_2>"]
-#       security_groups = ["<security_group_id_port_80>"]
-#       assign_public_ip = true
-#   }
+  network_configuration {
+      subnets          = [var.subnet_1, var.subnet_2]
+      security_groups  = [var.security_group]
+      assign_public_ip = var.public_ip
+  }
 }

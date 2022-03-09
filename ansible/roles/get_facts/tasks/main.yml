@@ -1,0 +1,5 @@
+- debug:
+    msg:
+      - "System architecture is {{ ansible_architecture }}"
+      - "System is {{ ansible_hostname }}"
+      - "System has {{ ansible_memory_mb.real }} of ram"

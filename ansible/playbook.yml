@@ -1,0 +1,33 @@
+# - name: Get Hostname
+#   become: yes
+#   become_method: sudo
+#   become_user: ansible
+#   serial: 1
+#   any_errors_fatal: True
+#   hosts: "{{ HOSTS }}"
+#   hosts: test
+#   roles:
+#     - role: get_hostname
+#   tags:
+#     - hostname
+
+# - name: Get Keys
+#   hosts: test
+#   roles:
+#     - role: get_keys
+#   tags:
+#     - keys
+
+# - name: Get Facts
+#   hosts: test
+#   roles:
+#     - role: get_facts
+#   tags:
+#     - facts
+
+- name: Create File
+  hosts: test
+  roles:
+    - role: create_file
+  tags:
+    - file

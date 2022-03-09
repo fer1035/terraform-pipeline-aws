@@ -1,0 +1,4 @@
+- name: Get Keys
+  command: cat /home/ignw/.ssh/authorized_keys
+  register: get_output
+- debug: var=get_output.stdout

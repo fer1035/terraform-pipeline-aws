@@ -45,7 +45,7 @@ variable "public_ip" {
     default = true
 }
 
-variable "container_up" {
-    type    = number
-    default = 1
-}
+# variable "container_up" {
+#     type    = number
+#     default = 1
+# }

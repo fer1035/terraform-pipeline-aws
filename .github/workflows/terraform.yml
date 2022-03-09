@@ -29,7 +29,7 @@ jobs:
       - name: Update Dockerfile
         id: Dockerfile
         run: |
-          sed -i 's/"PUBKEY"/"${{ secrets.ANSIBLE_PUBLIC_KEY }}"/' 'docker/Dockerfile'
+          sed -i 's/PUBKEY/${{ secrets.ANSIBLE_PUBLIC_KEY }}/' docker/Dockerfile
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1

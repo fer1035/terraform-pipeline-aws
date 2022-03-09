@@ -21,4 +21,4 @@ COPY ../docker/id_rsa.pub /home/ignw/.ssh/
 RUN apt-get update && apt-get install openssh-server -y && systemctl start ssh && pip3 install ansible && chmod 600 /home/ignw/.ssh/id_rsa*
 
 # Execute Ansible playbook.
-CMD [ "ansible-playbook", "-i" , "inventory" ]
+CMD [ "ansible-playbook", "playbook.yml", "-i" , "inventory" ]

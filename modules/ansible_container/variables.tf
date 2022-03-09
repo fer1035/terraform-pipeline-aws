@@ -22,7 +22,7 @@ variable "instance_count" {
 
 variable "force_new" {
     type    = bool
-    default = false
+    default = true
 }
 
 variable "subnet_1" {

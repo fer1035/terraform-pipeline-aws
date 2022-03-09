@@ -17,7 +17,7 @@ variable "image_name" {
 
 variable "instance_count" {
     type    = number
-    default = 0
+    default = 1
 }
 
 variable "force_new" {

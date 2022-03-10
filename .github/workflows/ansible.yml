@@ -7,8 +7,8 @@ on:
   pull_request:
 
 jobs:
-  terraform:
-    name: 'Terraform'
+  ansible:
+    name: 'Ansible'
     runs-on: ubuntu-latest
     steps:
 
@@ -18,8 +18,8 @@ jobs:
       - name: Install packages.
         id: packages
         run: |
-          apt-get update
-          apt-get install openssh-client curl python3 -y
+          sudo apt-get update
+          sudo apt-get install openssh-client curl python3 -y
       
       - name: Configure credentials.
         id: credentials

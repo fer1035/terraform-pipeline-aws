@@ -23,8 +23,8 @@ module "tennis" {
   source = "./modules/tennis"
 }
 
-# # Ansible.
-# module "ansible" {
-#   # count  = var.sontainer_up ? 1 : 0
-#   source = "./modules/ansible_container"
-# }
+# Ansible.
+module "ansible" {
+  # count  = var.sontainer_up ? 1 : 0
+  source = "./modules/ansible_container"
+}

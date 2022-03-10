@@ -9,7 +9,7 @@ resource "aws_ecs_task_definition" "task" {
   container_definitions    = jsonencode([
     {
       name             = var.family_name
-      image            = var.image_name
+      # image            = var.image_name
       essential        = true
       workingDirectory = "/ansible"
     }

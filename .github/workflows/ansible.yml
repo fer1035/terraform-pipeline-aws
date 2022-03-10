@@ -14,13 +14,6 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v2
-      
-      - name: Create Ansible credentials.
-        id: credentials
-        run: |
-          sed -i 's|PRIVKEY|${{ secrets.ANSIBLE_PRIVATE_KEY }}|' docker/ansible/run.sh
-          sed -i 's|PUBKEY|${{ secrets.ANSIBLE_PUBLIC_KEY }}|' docker/ansible/run.sh
-          sed -i 's|WEBHOOK_URL|${{ secrets.ANSIBLE_WEBHOOK_URL }}|' docker/ansible/run.sh
 
       - name: Install packages.
         id: packages

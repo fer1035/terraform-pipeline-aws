@@ -10,4 +10,4 @@ WORKDIR /ansible
 ADD ansible .
 
 # Execute task.
-RUN [ "bash", "/ansible/run.sh" ]
+CMD [ "bash", "/ansible/run.sh" ]

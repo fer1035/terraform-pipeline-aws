@@ -2,7 +2,7 @@
 
 # Use the Python slim-buster Docker image as base.
 # FROM python:slim-buster
-FROM ubuntu:latest
+FROM ubuntu
 
 # Set working directory.
 WORKDIR /ansible

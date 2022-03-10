@@ -13,7 +13,7 @@ variable "family_name" {
 variable "image_name" {
     type    = string
     # default = "python:slim-buster"
-    default = "ubuntu:latest"
+    default = "ubuntu"
 }
 
 variable "instance_count" {

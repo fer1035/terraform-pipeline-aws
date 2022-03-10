@@ -1,4 +1,4 @@
-name: 'Terraform'
+name: 'Ansible'
 
 on:
   push:
@@ -24,7 +24,7 @@ jobs:
 
       - name: Install packages.
         id: packages
-        ryb: |
+        run: |
           apt-get update
           apt-get install openssh-client curl python3 -y
       
@@ -45,15 +45,37 @@ jobs:
           python3 -m pip install ansible
           cd ansible
           ansible-playbook playbook.yml --inventory inventory --check > log.txt
+        continue-on-error: true
       
-      - name: Send check output to Teams for Pull Request.
-        id: teams-check
+      - name: Update Pull Request
+        uses: actions/github-script@0.9.0
         if: github.event_name == 'pull_request'
-        run: |
-          TITLE="Ansible Check Output"
-          MESSAGE=$(cat log.txt | sed 's/"/\"/g' | sed "s/'/\'/g")
-          JSON="{\"title\": \"${TITLE}\", \"text\": \"${MESSAGE}\"}"
-          curl -H "Content-Type: application/json" -d "${JSON}" "${{ secrets.ANSIBLE_WEBHOOK_URL }}"
+        env:
+          CHECK: "Ansible\n${{ steps.ansible-check.outputs.stdout }}"
+        with:
+          script: |
+            const output = `#### Ansible Check 🖌\`${{ steps.ansible-check.outcome }}\`
+
+            <details><summary>Show Check</summary>
+
+            \`\`\`\n
+            ${process.env.CHECK}
+            \`\`\`
+
+            </details>
+
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+      
+      - name: Ansible check status
+        if: steps.ansible-check.outcome == 'failure'
+        run: exit 1
       
       - name: Install and run Ansible in live mode for Main.
         id: ansible-live
@@ -68,7 +90,7 @@ jobs:
         id: teams-live
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
-          TITLE="Ansible Output"
+          TITLE="Ansible Pipeline Output"
           MESSAGE=$(cat log.txt | sed 's/"/\"/g' | sed "s/'/\'/g")
           JSON="{\"title\": \"${TITLE}\", \"text\": \"${MESSAGE}\"}"
           curl -H "Content-Type: application/json" -d "${JSON}" "${{ secrets.ANSIBLE_WEBHOOK_URL }}"

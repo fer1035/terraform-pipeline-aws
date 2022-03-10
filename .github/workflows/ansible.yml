@@ -1,0 +1,112 @@
+name: 'Ansible'
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  ansible:
+    name: 'Ansible'
+    runs-on: ubuntu-latest
+    environment: test
+    steps:
+
+      - name: Checkout.
+        uses: actions/checkout@v2
+
+      - name: Install packages.
+        id: packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install openssh-client curl python3 -y
+      
+      - name: Configure credentials.
+        id: credentials
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.ANSIBLE_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.ANSIBLE_PUBLIC_KEY }}" > ~/.ssh/id_rsa.pub
+          sed -i 's/\\n/\n/g' ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa*
+
+      - name: Install and run Ansible in check mode for Pull Request.
+        id: ansible-check
+        if: github.event_name == 'pull_request'
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install ansible
+          cd ansible
+          ansible-playbook playbook.yml --inventory inventory --check > log_check.txt
+        continue-on-error: true
+      
+      - name: Clear check credentials.
+        id: clear-check
+        if: github.event_name == 'pull_request'
+        run: |
+          rm ~/.ssh/id_rsa*
+      
+      - name: Get check output.
+        id: vars-check
+        if: github.event_name == 'pull_request'
+        run: echo ::set-output name=log_check::$(cat ansible/log_check.txt)
+
+      - name: Update Pull Request.
+        uses: actions/github-script@0.9.0
+        if: github.event_name == 'pull_request'
+        env:
+          CHECK: "ansible\n${{ steps.vars-check.outputs.log_check }}"
+        with:
+          script: |
+            const output = `#### Ansible Check 🖌\`${{ steps.ansible-check.outcome }}\`
+
+            <details><summary>Show Check</summary>
+
+            \`\`\`\n
+            ${process.env.CHECK}
+            \`\`\`
+
+            </details>
+
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+      
+      - name: Ansible check status.
+        if: steps.ansible-check.outcome == 'failure'
+        run: exit 1
+      
+      - name: Install and run Ansible in live mode for Main.
+        id: ansible-live
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install ansible
+          cd ansible
+          ansible-playbook playbook.yml --inventory inventory > log_live.txt
+      
+      - name: Clear live credentials.
+        id: clear-live
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          rm ~/.ssh/id_rsa*
+      
+      - name: Get live output.
+        id: vars-live
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: echo ::set-output name=log_live::$(cat ansible/log_live.txt)
+      
+      - name: Send live output to Teams for Main.
+        id: teams-live
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          TITLE="Ansible Pipeline Output"
+          MESSAGE=$(echo ${{ steps.vars-live.outputs.log_live }} | sed 's/"/\"/g' | sed "s/'/\'/g")
+          JSON="{\"title\": \"${TITLE}\", \"text\": \"${MESSAGE}\"}"
+          curl -H "Content-Type: application/json" -d "${JSON}" "${{ secrets.ANSIBLE_WEBHOOK_URL }}"

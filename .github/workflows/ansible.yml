@@ -13,7 +13,7 @@ jobs:
     environment: test
     steps:
 
-      - name: Checkout
+      - name: Checkout.
         uses: actions/checkout@v2
 
       - name: Install packages.
@@ -29,7 +29,7 @@ jobs:
           echo "${{ secrets.ANSIBLE_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           echo "${{ secrets.ANSIBLE_PUBLIC_KEY }}" > ~/.ssh/id_rsa.pub
           sed -i 's/\\n/\n/g' ~/.ssh/id_rsa
-          chmod 400 ~/.ssh/id_rsa*
+          chmod 600 ~/.ssh/id_rsa*
 
       - name: Install and run Ansible in check mode for Pull Request.
         id: ansible-check
@@ -41,15 +41,22 @@ jobs:
           ansible-playbook playbook.yml --inventory inventory --check > log_check.txt
         continue-on-error: true
       
-      - name: Get check output
+      - name: Clear check credentials.
+        id: clear-check
+        if: github.event_name == 'pull_request'
+        run: |
+          rm ~/.ssh/id_rsa*
+      
+      - name: Get check output.
         id: vars-check
-        run: echo ::set-output name=log_check::$(cat log_check.txt)
+        if: github.event_name == 'pull_request'
+        run: echo ::set-output name=log_check::$(cat ansible/log_check.txt)
 
-      - name: Update Pull Request
+      - name: Update Pull Request.
         uses: actions/github-script@0.9.0
         if: github.event_name == 'pull_request'
         env:
-          CHECK: "Ansible\n${{ steps.vars-check.outputs.log_check }}"
+          CHECK: "ansible\n${{ steps.vars-check.outputs.log_check }}"
         with:
           script: |
             const output = `#### Ansible Check 🖌\`${{ steps.ansible-check.outcome }}\`
@@ -71,7 +78,7 @@ jobs:
               body: output
             })
       
-      - name: Ansible check status
+      - name: Ansible check status.
         if: steps.ansible-check.outcome == 'failure'
         run: exit 1
       
@@ -84,9 +91,16 @@ jobs:
           cd ansible
           ansible-playbook playbook.yml --inventory inventory > log_live.txt
       
-      - name: Get live output
+      - name: Clear live credentials.
+        id: clear-live
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          rm ~/.ssh/id_rsa*
+      
+      - name: Get live output.
         id: vars-live
-        run: echo ::set-output name=log_live::$(cat log_live.txt)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: echo ::set-output name=log_live::$(cat ansible/log_live.txt)
       
       - name: Send live output to Teams for Main.
         id: teams-live

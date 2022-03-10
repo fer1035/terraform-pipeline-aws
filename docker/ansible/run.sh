@@ -12,6 +12,7 @@ apt-get install openssh -y
 mkdir -p ~/.ssh
 echo "$PRIV" > ~/.ssh/id_rsa
 echo "$PUB" > ~/.ssh/id_rsa.pub
+sed -i 's/\\n/\n/g' ~/.ssh/id_rsa
 chmod 600 ~/.ssh/id_rsa*
 
 pip3 install ansible

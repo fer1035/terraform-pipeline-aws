@@ -37,7 +37,7 @@ jobs:
           python3 -m pip install --upgrade pip
           python3 -m pip install ansible
           cd ansible
-          ansible-playbook playbook.yml --inventory inventory --check > log.txt
+          ansible-playbook playbook.yml --inventory inventory --check
         continue-on-error: true
       
       - name: Update Pull Request
@@ -77,13 +77,13 @@ jobs:
           python3 -m pip install --upgrade pip
           python3 -m pip install ansible
           cd ansible
-          ansible-playbook playbook.yml --inventory inventory --check > log.txt
+          ansible-playbook playbook.yml --inventory inventory
       
       - name: Send live output to Teams for Main.
         id: teams-live
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
           TITLE="Ansible Pipeline Output"
-          MESSAGE=$(cat log.txt | sed 's/"/\"/g' | sed "s/'/\'/g")
+          MESSAGE=$(${{ steps.ansible-check.outcome }} | sed 's/"/\"/g' | sed "s/'/\'/g")
           JSON="{\"title\": \"${TITLE}\", \"text\": \"${MESSAGE}\"}"
           curl -H "Content-Type: application/json" -d "${JSON}" "${{ secrets.ANSIBLE_WEBHOOK_URL }}"

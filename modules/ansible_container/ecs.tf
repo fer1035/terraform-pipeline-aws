@@ -1,8 +1,7 @@
 resource "aws_iam_role" "role" {
   name                = format("%s_role", var.family_name)
   managed_policy_arns = [
-    "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy",
-
+    "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
   ]
   assume_role_policy  = <<EOF
 {

@@ -22,9 +22,3 @@ output "endpoint_01_url" {
 module "tennis" {
   source = "./modules/tennis"
 }
-
-# Ansible.
-module "ansible" {
-  # count  = var.sontainer_up ? 1 : 0
-  source = "./modules/ansible_container"
-}

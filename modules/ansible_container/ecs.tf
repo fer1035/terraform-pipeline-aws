@@ -1,9 +1,29 @@
+resource "aws_iam_role" "role" {
+  name               = format("%s_role", var.family_name)
+  managed_policy_arns = ["arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"]
+  assume_role_policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": "sts:AssumeRole",
+            "Principal": {
+                "Service": "ecs.amazonaws.com"
+            },
+            "Effect": "Allow",
+            "Sid": "ECSTaskExecution"
+        }
+    ]
+}
+EOF
+}
+
 resource "aws_ecs_task_definition" "task" {
   family                   = var.family_name
   requires_compatibilities = ["FARGATE"]
   cpu                      = 256
   memory                   = 512
-  execution_role_arn       = "arn:aws:iam::${local.account_id}:role/ecsTaskExecutionRole"
+  execution_role_arn       = aws_iam_role.role.arn
   network_mode             = "awsvpc"
 
   container_definitions    = jsonencode([

@@ -6,7 +6,7 @@ export PUB="PUBKEY"
 
 # Install SSH.
 apt-get update
-apt-get install openssh -y 
+apt-get install openssh python3 -y 
 
 # Create credentials.
 mkdir -p ~/.ssh

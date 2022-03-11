@@ -21,6 +21,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install openssh-client curl python3 -y
+          python3 -m pip install --upgrade pip
+          python3 -m pip install ansible
       
       - name: Configure credentials.
         id: credentials
@@ -30,20 +32,13 @@ jobs:
           echo "${{ secrets.ANSIBLE_PUBLIC_KEY }}" > ~/.ssh/id_rsa.pub
           sed -i 's/\\n/\n/g' ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa*
-
-      - name: Install Ansible in check mode for Pull Request.
-        id: install-check
-        if: github.event_name == 'pull_request'
-        run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install ansible
       
       - name: Run Ansible in check mode for Pull Request.
         id: ansible-check
         if: github.event_name == 'pull_request'
         run: |
           cd ansible
-          ansible-playbook playbook.yml --inventory inventory --check
+          ansible-playbook playbook.yml --inventory inventory --check | sed 's/\n$//'
         continue-on-error: true
       
       - name: Clear check credentials.

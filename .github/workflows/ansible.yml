@@ -31,15 +31,19 @@ jobs:
           sed -i 's/\\n/\n/g' ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa*
 
-      - name: Install and run Ansible in check mode for Pull Request.
-        id: ansible-check
+      - name: Install Ansible in check mode for Pull Request.
+        id: install-check
         if: github.event_name == 'pull_request'
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install ansible
+      
+      - name: Run Ansible in check mode for Pull Request.
+        id: ansible-check
+        if: github.event_name == 'pull_request'
+        run: |
           cd ansible
-          rm -f log_check.txt
-          ansible-playbook playbook.yml --inventory inventory --check >> log_check.txt
+          ansible-playbook playbook.yml --inventory inventory --check
         continue-on-error: true
       
       - name: Clear check credentials.
@@ -47,17 +51,12 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           rm -f ~/.ssh/id_rsa*
-      
-      - name: Get check output.
-        id: vars-check
-        if: github.event_name == 'pull_request'
-        run: cat ansible/log_check.txt
 
       - name: Update Pull Request.
         uses: actions/github-script@0.9.0
         if: github.event_name == 'pull_request'
         env:
-          CHECK: "ansible\n${{ steps.vars-check.outputs.stdout_lines }}"
+          CHECK: "ansible\n${{ steps.ansible-check.outputs.stdout }}"
         with:
           script: |
             const output = `#### Ansible Check 🖌\`${{ steps.ansible-check.outcome }}\`

@@ -110,7 +110,7 @@ jobs:
           content="${content//$'\r'/'%0D'}"
           echo ::set-output name=log-live::$content
       
-      - name: Send live output to Teams for Main.
+      - name: Send live output to Teams for deployment.
         id: teams-live
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |

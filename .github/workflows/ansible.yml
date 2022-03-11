@@ -41,12 +41,15 @@ jobs:
           ansible-playbook playbook.yml --inventory inventory --check > log_check.txt
         continue-on-error: true
       
-      - name: Get check output.
+      - name: Process check output.
         id: vars-check
         if: github.event_name == 'pull_request'
         run: |
-          sed -i 's/\n//g' ansible/log_check.txt
-          cat ansible/log_check.txt
+          content=$(cat ansible/log_check.txt)
+          content="${content//'%'/'%25'}"
+          content="${content//$'\n'/'%0A'}"
+          content="${content//$'\r'/'%0D'}"
+          echo ::set-output name=log-check::$content
       
       - name: Clear check credentials.
         id: clear-check
@@ -58,7 +61,7 @@ jobs:
         uses: actions/github-script@0.9.0
         if: github.event_name == 'pull_request'
         env:
-          CHECK: "ansible\n${{ steps.vars-check.outputs }}"
+          CHECK: "ansible\n${{ steps.vars-check.outputs.log-check }}"
         with:
           script: |
             const output = `#### Ansible Check 🖌\`${{ steps.ansible-check.outcome }}\`

@@ -4,25 +4,23 @@ Terraform pipeline for AWS.
 
 ---
 
+## Changelog
+
+1. Added Ansible pipeline.
+2. Added gating to pipelines.
+3. Restructured codes and variables.
+4. Updated [README](README.md) to reflect changes.
+
 ## Overview
 
-Terraform pipelining experiment - the pipeline creates a secure Application Programming Interface (API) in AWS API Gateway with a Lambda Proxy backend. The Security Demonstrator API function is defined in the [Lambda function](modules/security_demo_endpoint/resources/lambda_function.py).
+Terraform pipelining experiments - provision resources in a target AWS environment.
 
-## Contributions
+### Current Deployments
 
-### Changing API Function
+1. [API](modules/security_demo_endpoint/) application security [implementations](modules/security_demo/)
+2. Event-driven [infrastructure](modules/tennis/)
 
-1. Change Web Application Firewall rule configuration to change security behaviors. For details on which rule does what, visit the corresponding [AWS documentation](https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-list.html).
-
-2. Change API Gateway request model definition to change request body components.
-
-3. Change API Gateway method configuration to change required header, query string, and path parameter configurations.
-
-4. Change Python input validators in the Lambda function to reflect the same changes.
-
-5. Change Lambda function Python code to change what the API does.
-
-### Steps
+## Contribute
 
 0. Quick way: use an IDE with Git integrations instead (such as Visual Studio Code).
 
@@ -49,4 +47,12 @@ Terraform pipelining experiment - the pipeline creates a secure Application Prog
 
 5. Create a Pull Request from your feature branch to *main*.
 
-    > Pull Requests will require the *Terraform* check to pass before merging.
+    - Pull Requests will require all checks to pass before merging.
+
+    - Both of the existing pipelines now require approvals to execute Pull Requests and merges to the **main** branch for the specified environment. You can target a different environment (or none at all), but you will need to specify your own variables as the existing ones are specific to the current environment.
+
+## Extras
+
+1. Ansible Pipeline
+
+    The [ansible.yml](.github/workflows/ansible.yml) pipeline runs the Ansible [playbook](ansible/playbook.yml) in the ansible directory. The credentials are specific to its current target, so you will have to update the pipeline to use your own credentials for your own targets to test it.

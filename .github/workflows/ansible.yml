@@ -57,7 +57,7 @@ jobs:
         uses: actions/github-script@0.9.0
         if: github.event_name == 'pull_request'
         env:
-          CHECK: "ansible\n${{ steps.vars-check.outputs.stdout }}"
+          CHECK: "ansible\n${{ cat ansible/log_check.txt }}"
         with:
           script: |
             const output = `#### Ansible Check 🖌\`${{ steps.ansible-check.outcome }}\`

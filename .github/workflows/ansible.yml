@@ -115,6 +115,6 @@ jobs:
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
           TITLE="Ansible Pipeline Output"
-          MESSAGE=$(echo ${{ steps.vars-live.outputs.log-live }} | sed 's/"/\"/g' | sed "s/'/\'/g")
+          MESSAGE=$(echo "${{ steps.vars-live.outputs.log-live }}" | sed 's/"/\"/g' | sed "s/'/\'/g")
           JSON="{\"title\": \"${TITLE}\", \"text\": \"${MESSAGE}\"}"
           curl -H "Content-Type: application/json" -d "${JSON}" "${{ secrets.ANSIBLE_WEBHOOK_URL }}"

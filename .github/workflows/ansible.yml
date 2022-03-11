@@ -38,7 +38,7 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           cd ansible
-          ansible-playbook playbook.yml --inventory inventory --check | sed 's/\n$//'
+          ansible-playbook playbook.yml --inventory inventory --check | sed 's/^\n$//g'
         continue-on-error: true
       
       - name: Clear check credentials.

@@ -1,16 +1,12 @@
-name: 'Ansible'
+name: Ansible
 
-# on:
-#   push:
-#     branches:
-#       - main
-#   pull_request:
+on:
+  workflow_call:
 
 jobs:
   ansible:
-    name: 'Ansible'
+    name: Ansible
     runs-on: ubuntu-latest
-    environment: test
     steps:
 
       - name: Checkout.

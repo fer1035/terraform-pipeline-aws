@@ -1,16 +1,12 @@
-name: 'Terraform'
+name: Terraform
 
-# on:
-#   push:
-#     branches:
-#       - main
-#   pull_request:
+on:
+  workflow_call:
 
 jobs:
   terraform:
-    name: 'Terraform'
+    name: Terraform
     runs-on: ubuntu-latest
-    environment: test
     steps:
 
       - name: Checkout

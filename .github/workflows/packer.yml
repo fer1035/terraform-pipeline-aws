@@ -1,21 +1,19 @@
-name: 'Packer'
+name: Packer
 
 on:
-  push:
-    branches:
-      - main
-  # pull_request:
+  workflow_call:
 
 jobs:
   packer:
+    name: Packer
     runs-on: ubuntu-latest
-    name: packer
-
     steps:
+
       - name: Checkout Repository
         uses: actions/checkout@v2
       
       - name: Configure Credentials
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
           sed -i 's|AWS_ACCESS_KEY_ID|${{ secrets.AWS_ACCESS_KEY_ID }}|' packer/docker-python.pkr.hcl
           sed -i 's|AWS_SECRET_ACCESS_KEY|${{ secrets.AWS_SECRET_ACCESS_KEY }}|' packer/docker-python.pkr.hcl
@@ -59,15 +57,25 @@ jobs:
           sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
           sudo apt-get update && sudo apt-get install packer -y
       
-      # run Packer
-      - name: Run Packer
+      # run Packer checks
+      - name: Run Packer Checks
+        id: packer-check
         run: |
           packer init packer
           packer fmt packer
           packer validate packer/docker-python.pkr.hcl
-          packer build packer/docker-python.pkr.hcl
+
+      - name: Packer check status
+        if: steps.packer-check.outcome == 'failure'
+        run: exit 1
+      
+      # run Packer build
+      - name: Run Packer Build
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: packer build packer/docker-python.pkr.hcl
       
       - name: Clear Credentials
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
           sed -i 's|${{ secrets.AWS_ACCESS_KEY_ID }}|AWS_ACCESS_KEY_ID|' packer/docker-python.pkr.hcl
           sed -i 's|${{ secrets.AWS_SECRET_ACCESS_KEY }}|AWS_SECRET_ACCESS_KEY|' packer/docker-python.pkr.hcl

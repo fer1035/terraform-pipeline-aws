@@ -21,8 +21,8 @@ source "docker" "python" {
     "CMD [\"nginx\", \"-g\", \"daemon off;\"]",
     "ENTRYPOINT /var/www/start.sh" */
     "ONBUILD RUN apt-get update && apt-get upgrade -y && python3 -m pip install --upgrade pip",
-    "WORKDIR /var/start"
-    "VOLUME . /var/start"
+    "WORKDIR /var/start",
+    "VOLUME . /var/start",
     "ENTRYPOINT /var/start/run.sh"
   ]
 }

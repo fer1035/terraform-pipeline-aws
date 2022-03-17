@@ -27,23 +27,37 @@ jobs:
       #     command: fix
       #     target: packer
 
-      # validate templates
-      - name: Validate Template
-        uses: hashicorp/packer-github-actions@master
-        with:
-          command: validate
-          arguments: -syntax-only
-          target: packer/docker-python.pkr.hcl
+      # # validate templates
+      # - name: Validate Template
+      #   uses: hashicorp/packer-github-actions@master
+      #   with:
+      #     command: validate
+      #     arguments: -syntax-only
+      #     target: packer/docker-python.pkr.hcl
 
-      # build artifact
-      - name: Build Artifact
-        uses: hashicorp/packer-github-actions@master
-        with:
-          command: build
-          arguments: "-color=false -on-error=abort"
-          target: packer/docker-python.pkr.hcl
-        env:
-          PACKER_LOG: 0
+      # # build artifact
+      # - name: Build Artifact
+      #   uses: hashicorp/packer-github-actions@master
+      #   with:
+      #     command: build
+      #     arguments: "-color=false -on-error=abort"
+      #     target: packer/docker-python.pkr.hcl
+      #   env:
+      #     PACKER_LOG: 0
+
+      # install Packer
+      - name: Install Packer
+        run: |
+          curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+          apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+          apt-get update && apt-get upgrade -y && apt-get install packer -y
+      
+      # run Packer
+      - name: Run Packer
+        run: |
+          packer fmt packer
+          packer validate packer/docker-python.pkr.hcl
+          packer build packer/docker-python.pkr.hcl
       
       - name: Clear Credentials
         run: |

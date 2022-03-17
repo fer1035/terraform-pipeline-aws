@@ -46,7 +46,7 @@ build {
 }
 
 /* post-processors {
-  post-processor "docker-import" {  // this is only for non-commits, i.e. export or discard
+  post-processor "docker-import" {  // this is only for non-commits, i.e. export or discard.
     repository =  "myrepo/myimage"
     tag        = "0.7"
   }

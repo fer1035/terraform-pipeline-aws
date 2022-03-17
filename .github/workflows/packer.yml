@@ -17,9 +17,8 @@ jobs:
       
       - name: Configure Credentials
         run: |
-          # sed -i 's|AWS_ACCESS_KEY_ID|${{ secrets.ECR_PASSWORD }}|' packer/docker-python.pkr.hcl
-          # sed -i 's|AWS_SECRET_ACCESS_KEY|${{ secrets.AWS_SECRET_ACCESS_KEY }}|' packer/docker-python.pkr.hcl
-          sed -i 's|ECR_PASSWORD|${{ secrets.ECR_PASSWORD }}|' packer/docker-python.pkr.hcl
+          sed -i 's|AWS_ACCESS_KEY_ID|${{ secrets.AWS_ACCESS_KEY_ID }}|' packer/docker-python.pkr.hcl
+          sed -i 's|AWS_SECRET_ACCESS_KEY|${{ secrets.AWS_SECRET_ACCESS_KEY }}|' packer/docker-python.pkr.hcl
 
       # # fix backwards incompatibilities in template
       # - name: Fix Template
@@ -70,8 +69,7 @@ jobs:
       
       - name: Clear Credentials
         run: |
-          # sed -i 's|${{ secrets.AWS_ACCESS_KEY_ID }}|AWS_ACCESS_KEY_ID|' packer/docker-python.pkr.hcl
-          # sed -i 's|${{ secrets.AWS_SECRET_ACCESS_KEY }}|AWS_SECRET_ACCESS_KEY|' packer/docker-python.pkr.hcl
-          sed -i 's|${{ secrets.ECR_PASSWORD }}|ECR_PASSWORD|' packer/docker-python.pkr.hcl
+          sed -i 's|${{ secrets.AWS_ACCESS_KEY_ID }}|AWS_ACCESS_KEY_ID|' packer/docker-python.pkr.hcl
+          sed -i 's|${{ secrets.AWS_SECRET_ACCESS_KEY }}|AWS_SECRET_ACCESS_KEY|' packer/docker-python.pkr.hcl
 
       # additional steps to process artifacts

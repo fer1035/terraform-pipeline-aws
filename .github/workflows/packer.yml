@@ -46,12 +46,12 @@ jobs:
       #   env:
       #     PACKER_LOG: 0
 
-      # install AWSCLI
-      - name: Install AWSCLI
-        run: |
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip awscliv2.zip
-          sudo ./aws/install
+      # # install AWSCLI
+      # - name: Install AWSCLI
+      #   run: |
+      #     curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+      #     unzip awscliv2.zip
+      #     sudo ./aws/install --update
 
       # install Packer
       - name: Install Packer

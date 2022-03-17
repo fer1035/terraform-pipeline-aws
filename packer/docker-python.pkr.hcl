@@ -33,26 +33,10 @@ build {
     "source.docker.python"
   ]
 
-  post-processor "docker-tag" {
-      repository = "531133914787.dkr.ecr.us-east-1.amazonaws.com/packer-test"
-      tags       = ["latest"]
-  }
-  post-processor "docker-push" {
-    /* ecr_login      = true
-    aws_access_key = "AWS_ACCESS_KEY_ID"
-    aws_secret_key = "AWS_SECRET_ACCESS_KEY" */
-    login          = true
-    login_username = "AWS"
-    login_password = "ECR_PASSWORD"
-    login_server   = "https://531133914787.dkr.ecr.us-east-1.amazonaws.com/"
-  }
-}
-
-/* post-processors {
-  post-processor "docker-import" {  // this is only for non-commits, i.e. export or discard
+  /* post-processor "docker-import" {  // this is only for non-commits, i.e. export or discard
     repository =  "myrepo/myimage"
     tag        = "0.7"
-  }
+  } */
   post-processor "docker-tag" {
       repository = "531133914787.dkr.ecr.us-east-1.amazonaws.com/packer-test"
       tags       = ["latest"]
@@ -63,4 +47,4 @@ build {
     aws_secret_key = "AWS_SECRET_ACCESS_KEY"
     login_server   = "https://531133914787.dkr.ecr.us-east-1.amazonaws.com/"
   }
-} */
+}

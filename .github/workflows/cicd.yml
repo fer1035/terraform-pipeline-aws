@@ -7,19 +7,17 @@ on:
   pull_request:
 
 jobs:
-  packer:
-    name: CICD
-    runs-on: ubuntu-latest
-    environment: test
-    steps:
 
-      - name: Packer
-        uses: ./.github/workflows/packer.yml
-      
-      - name: Terraform
-        uses: ./.github/workflows/terraform.yml
-        needs: Packer
-      
-      - name: Ansible
-        uses: ./.github/workflows/ansible.yml
-        needs: Terraform
+  packer:
+    name: Packer
+    uses: ./.github/workflows/packer.yml
+  
+  terraform:
+    name: Terraform
+    uses: ./.github/workflows/terraform.yml
+    needs: Packer
+  
+  ansible:
+    name: Ansible
+    uses: ./.github/workflows/ansible.yml
+    needs: Terraform

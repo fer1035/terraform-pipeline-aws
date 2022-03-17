@@ -20,12 +20,12 @@ jobs:
           sed -i 's|${{ secrets.AWS_ACCESS_KEY_ID }}|AWS_ACCESS_KEY_ID|' packer/docker-python.pkr.hcl
           sed -i 's|${{ secrets.AWS_SECRET_ACCESS_KEY }}|AWS_SECRET_ACCESS_KEY|' packer/docker-python.pkr.hcl
 
-      # fix backwards incompatibilities in template
-      - name: Fix Template
-        uses: hashicorp/packer-github-actions@master
-        with:
-          command: fix
-          target: packer
+      # # fix backwards incompatibilities in template
+      # - name: Fix Template
+      #   uses: hashicorp/packer-github-actions@master
+      #   with:
+      #     command: fix
+      #     target: packer
 
       # validate templates
       - name: Validate Template

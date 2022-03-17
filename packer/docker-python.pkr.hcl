@@ -42,6 +42,9 @@ build {
       tags       = ["latest"]
   }
   post-processor "docker-push" {
+    /* login          = true  // these are for Docker and other sites, not ECR
+    login_username = "USERNAME"
+    login_password = "PASSWORD" */
     ecr_login      = true
     aws_access_key = "AWS_ACCESS_KEY_ID"
     aws_secret_key = "AWS_SECRET_ACCESS_KEY"

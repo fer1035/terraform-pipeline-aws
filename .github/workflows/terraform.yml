@@ -1,14 +1,16 @@
-name: 'Terraform'
+name: Terraform
 
-# on:
-#   push:
-#     branches:
-#       - main
-#   pull_request:
+on:
+  workflow_call:
+    secrets:
+      TF_API_TOKEN:
+        required: true
+      TF_GITHUB_TOKEN:
+        required: true
 
 jobs:
   terraform:
-    name: 'Terraform'
+    name: Terraform
     runs-on: ubuntu-latest
     environment: test
     steps:

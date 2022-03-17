@@ -1,14 +1,18 @@
-name: 'Ansible'
+name: Ansible
 
-# on:
-#   push:
-#     branches:
-#       - main
-#   pull_request:
+on:
+  workflow_call:
+    secrets:
+      ANSIBLE_PRIVATE_KEY:
+        required: true
+      ANSIBLE_PUBLIC_KEY:
+        required: true
+      ANSIBLE_WEBHOOK_URL:
+        required: true
 
 jobs:
   ansible:
-    name: 'Ansible'
+    name: Ansible
     runs-on: ubuntu-latest
     environment: test
     steps:

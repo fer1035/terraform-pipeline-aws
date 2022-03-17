@@ -1,0 +1,67 @@
+name: 'Packer'
+
+on:
+  push:
+    branches:
+      - main
+  # pull_request:
+
+jobs:
+  packer:
+    runs-on: ubuntu-latest
+    name: packer
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      
+      - name: Configure Credentials
+        run: |
+          sed -i 's|${{ secrets.AWS_ACCESS_KEY_ID }}|AWS_ACCESS_KEY_ID|' packer/docker-python.pkr.hcl
+          sed -i 's|${{ secrets.AWS_SECRET_ACCESS_KEY }}|AWS_SECRET_ACCESS_KEY|' packer/docker-python.pkr.hcl
+
+      # # fix backwards incompatibilities in template
+      # - name: Fix Template
+      #   uses: hashicorp/packer-github-actions@master
+      #   with:
+      #     command: fix
+      #     target: packer
+
+      # # validate templates
+      # - name: Validate Template
+      #   uses: hashicorp/packer-github-actions@master
+      #   with:
+      #     command: validate
+      #     arguments: -syntax-only
+      #     target: packer/docker-python.pkr.hcl
+
+      # # build artifact
+      # - name: Build Artifact
+      #   uses: hashicorp/packer-github-actions@master
+      #   with:
+      #     command: build
+      #     arguments: "-color=false -on-error=abort"
+      #     target: packer/docker-python.pkr.hcl
+      #   env:
+      #     PACKER_LOG: 0
+
+      # install Packer
+      - name: Install Packer
+        run: |
+          curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+          sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+          sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install packer -y
+      
+      # run Packer
+      - name: Run Packer
+        run: |
+          packer fmt packer
+          packer validate packer/docker-python.pkr.hcl
+          packer build packer/docker-python.pkr.hcl
+      
+      - name: Clear Credentials
+        run: |
+          sed -i 's|AWS_ACCESS_KEY_ID|${{ secrets.AWS_ACCESS_KEY_ID }}|' packer/docker-python.pkr.hcl
+          sed -i 's|AWS_SECRET_ACCESS_KEY|${{ secrets.AWS_SECRET_ACCESS_KEY }}|' packer/docker-python.pkr.hcl
+
+      # additional steps to process artifacts

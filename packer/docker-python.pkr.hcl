@@ -38,9 +38,12 @@ build {
       tags       = ["latest"]
   }
   post-processor "docker-push" {
-    ecr_login      = true
+    /* ecr_login      = true
     aws_access_key = "AWS_ACCESS_KEY_ID"
-    aws_secret_key = "AWS_SECRET_ACCESS_KEY"
+    aws_secret_key = "AWS_SECRET_ACCESS_KEY" */
+    login          = true
+    login_username = "AWS"
+    login_password = "ECR_PASSWORD"
     login_server   = "https://531133914787.dkr.ecr.us-east-1.amazonaws.com/"
   }
 }

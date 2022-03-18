@@ -46,7 +46,7 @@ jobs:
         if: github.event_name == 'pull_request'
         with:
           script: |
-            const output = `#### Ansible Output 🖌\`${{ steps.run-ansible.outcome }}\`
+            const output = `#### Ansible Command Result 🖌\`${{ steps.run-ansible.outcome }}\`
 
             *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
 

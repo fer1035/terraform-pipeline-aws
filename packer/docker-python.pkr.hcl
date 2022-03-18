@@ -25,7 +25,8 @@ source "docker" "python" {
     "ONBUILD RUN date",
     "CMD [\"nginx\", \"-g\", \"daemon off;\"]",
     "ENTRYPOINT /var/www/start.sh" */
-    "ENTRYPOINT /var/ansible/run.sh"
+    "WORKDIR /var/ansible",
+    "ENTRYPOINT ./run.sh"
   ]
 }
 

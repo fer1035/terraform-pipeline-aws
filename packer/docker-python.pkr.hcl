@@ -25,9 +25,8 @@ source "docker" "python" {
     "ONBUILD RUN date",
     "CMD [\"nginx\", \"-g\", \"daemon off;\"]",
     "ENTRYPOINT /var/www/start.sh" */
-    "ONBUILD RUN apt-get update && apt-get upgrade -y && python3 -m pip install --upgrade pip",
+    "ONBUILD RUN apt-get update && apt-get upgrade -y && python3 -m pip install --upgrade pip && mkdir -p /var/start",
     "WORKDIR /var/start",
-    "VOLUME . /var/start",
     "ENTRYPOINT /var/start/run.sh"
   ]
 }
@@ -38,19 +37,22 @@ build {
     "source.docker.python"
   ]
 
-  /* provisioner "shell" {
-    environment_vars = [
-      "FOO=hello world",
+  provisioner "file" {
+    sources = [
+      "packer/run.sh"
     ]
-    inline = [
-      "echo Adding file to Docker Container",
-      "echo \"FOO is $FOO\" > example.txt",
-    ]
+    destination = "/tmp/"
   }
 
   provisioner "shell" {
-    inline = ["echo Running ${var.docker_image} Docker image."]
-  } */
+    /* environment_vars = [
+      "FOO=hello world",
+    ] */
+    inline = [
+      "mv /tmp/run.sh /var/start/run.sh",
+      "chmod +x /var/start/run.sh"
+    ]
+  }
 
   post-processors {
     /* post-processor "docker-import" {  // this is only for non-commits, i.e. export or discard

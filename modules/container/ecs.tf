@@ -66,6 +66,6 @@ resource "aws_ecs_task_definition" "task" {
 } */
 
 output "task_cli" {
-  value     = "aws ecs run-task --cluster default --task-definition ${aws_ecs_task_definition.task.arn} --network-definition 'awsvpcConfiguration={subnets=[${var.subnet_1},${var.subnet_2}],securityGroups=[${var.security_group}],assignPublicIp=${var.public_ip}}'"
+  value     = "aws ecs run-task --cluster ${aws_ecs_cluster.cluster.name} --launch-type ${var.cli_launch_type} --task-definition ${aws_ecs_task_definition.task.arn} --network-configuration 'awsvpcConfiguration={subnets=[${var.subnet_1},${var.subnet_2}],securityGroups=[${var.security_group}],assignPublicIp=${var.cli_public_ip}}'"
   sensitive = false
 }

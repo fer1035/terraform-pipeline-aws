@@ -44,3 +44,13 @@ variable "public_ip" {
     type    = bool
     default = true
 }
+
+variable "cli_public_ip" {
+    type    = string
+    default = "ENABLED"
+}
+
+variable "cli_launch_type" {
+    type    = string
+    default = "FARGATE"
+}

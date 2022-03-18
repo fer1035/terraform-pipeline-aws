@@ -59,7 +59,7 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           sed -i 's|ANSIBLE_TITLE|Ansible Container Check Output|' ansible/run.sh
-          sed -i 's|ANSIBLE_CMD|ansible-playbook playbook.yml --inventory inventory --check|' ansible/run.sh
+          sed -i 's|ANSIBLE_CMD|cd /var/ansible && ansible-playbook playbook.yml --inventory inventory --check|' ansible/run.sh
           packer build packer/docker-python.pkr.hcl
           sed -i 's|Ansible Container Check Output|ANSIBLE_TITLE|' ansible/run.sh
           sed -i 's|ansible-playbook playbook.yml --inventory inventory --check|ANSIBLE_CMD|' ansible/run.sh
@@ -90,7 +90,7 @@ jobs:
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
           sed -i 's|ANSIBLE_TITLE|Ansible Container Deploy Output|' ansible/run.sh
-          sed -i 's|ANSIBLE_CMD|ansible-playbook playbook.yml --inventory inventory|' ansible/run.sh
+          sed -i 's|ANSIBLE_CMD|cd /var/ansible && ansible-playbook playbook.yml --inventory inventory|' ansible/run.sh
           packer build packer/docker-python.pkr.hcl
           sed -i 's|Ansible Container Deploy Output|ANSIBLE_TITLE|' ansible/run.sh
           sed -i 's|ansible-playbook playbook.yml --inventory inventory|ANSIBLE_CMD|' ansible/run.sh

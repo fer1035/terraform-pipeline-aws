@@ -11,6 +11,8 @@ on:
         required: true
       AWS_SECRET_ACCESS_KEY:
         required: true
+      ANSIBLE_WEBHOOK_URL:
+        required: true
 
 jobs:
   packer:

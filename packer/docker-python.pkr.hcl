@@ -39,7 +39,7 @@ build {
 
   provisioner "file" {
     sources = [
-      "run.sh"
+      "packer/run.sh"
     ]
     destination = "/tmp/"
   }

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Test command.
-MESSAGE="$(ANSIBLE_CMD)"
+MESSAGE="$(date)"
 
 # Set output for Teams.
 TITLE="ANSIBLE_TITLE"

@@ -25,7 +25,8 @@ source "docker" "python" {
     "ONBUILD RUN date",
     "CMD [\"nginx\", \"-g\", \"daemon off;\"]",
     "ENTRYPOINT /var/www/start.sh" */
-    "ENTRYPOINT bash /var/start/run.sh"
+    "WORKDIR /var/ansible",
+    "ENTRYPOINT ./run.sh"
   ]
 }
 
@@ -35,13 +36,17 @@ build {
     "source.docker.python"
   ]
 
-  provisioner "file" {
-    /* sources     = [
-      "packer/run.sh"
+  provisioner "shell" {
+    inline = [
+      "mkdir -p /tmp/ansible"
     ]
-    destination = "/tmp/" */
-    source      = "packer/run.sh"
-    destination = "/tmp/run.sh"
+  }
+
+  provisioner "file" {
+    sources     = [
+      "ansible/"
+    ]
+    destination = "/tmp/ansible/"
   }
 
   provisioner "shell" {
@@ -50,10 +55,16 @@ build {
     ] */
     inline = [
       "apt-get update",
-      "apt-get install curl -y",
+      "apt-get install openssh-client curl python3 -y",
       "python3 -m pip install --upgrade pip",
-      "mkdir -p /var/start",
-      "mv /tmp/run.sh /var/start/run.sh"
+      "python3 -m pip install ansible",
+      "mv /tmp/ansible/ /var/",
+      "chmod +x /var/ansible/run.sh",
+      "mkdir -p ~/.ssh",
+      "mv /var/ansible/id_rsa  ~/.ssh/",
+      "mv /var/ansible/id_rsa.pub  ~/.ssh/",
+      "chmod 600 ~/.ssh/id_rsa",
+      "chmod 600 ~/.ssh/id_rsa.pub"
     ]
   }
 

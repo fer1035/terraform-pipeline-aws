@@ -36,12 +36,11 @@ build {
   ]
 
   provisioner "file" {
-    /* sources     = [
-      "packer/run.sh"
+    sources     = [
+      "packer/run.sh",
+      "ansible/"
     ]
-    destination = "/tmp/" */
-    source      = "packer/run.sh"
-    destination = "/tmp/run.sh"
+    destination = "/tmp/"
   }
 
   provisioner "shell" {
@@ -50,10 +49,16 @@ build {
     ] */
     inline = [
       "apt-get update",
-      "apt-get install curl -y",
+      "apt-get install openssh-client curl python3 -y",
       "python3 -m pip install --upgrade pip",
-      "mkdir -p /var/start",
-      "mv /tmp/run.sh /var/start/run.sh"
+      "python3 -m pip install ansible",
+      "mkdir -p ~/.ssh",
+      "echo \"ANSIBLE_PRIVATE_KEY\" > ~/.ssh/id_rsa",
+      "echo \"ANSIBLE_PUBLIC_KEY\" > ~/.ssh/id_rsa.pub",
+      "sed -i 's/\\n/\n/g' ~/.ssh/id_rsa",
+      "chmod 600 ~/.ssh/id_rsa*",
+      "mv /tmp/run.sh /var/start/run.sh",
+      "mv /tmp/ansible/* /var/start/"
     ]
   }
 

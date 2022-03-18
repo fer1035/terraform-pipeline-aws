@@ -7,16 +7,6 @@ on:
   pull_request:
 
 jobs:
-
-  packer:
-    name: Packer
-    uses: ./.github/workflows/packer.yml
-    with:
-      env: test
-    secrets:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      ANSIBLE_WEBHOOK_URL: ${{ secrets.ANSIBLE_WEBHOOK_URL }}
   
   terraform:
     name: Terraform
@@ -26,17 +16,59 @@ jobs:
     secrets:
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
       TF_GITHUB_TOKEN: ${{ secrets.TF_GITHUB_TOKEN }}
-    needs: Packer
   
-  ansible:
-    name: Ansible
-    uses: ./.github/workflows/ansible.yml
+  packer:
+    name: Packer
+    needs: terraform
+    uses: ./.github/workflows/packer.yml
     with:
       env: test
     secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       ANSIBLE_PRIVATE_KEY: ${{ secrets.ANSIBLE_PRIVATE_KEY }}
       ANSIBLE_PUBLIC_KEY: ${{ secrets.ANSIBLE_PUBLIC_KEY }}
       ANSIBLE_WEBHOOK_URL: ${{ secrets.ANSIBLE_WEBHOOK_URL }}
-    needs: Terraform
+  
+  ansible:
+    name: Ansible
+    needs: packer
+    runs-on: ubuntu-latest
+    environment: test
+    steps:
 
-# Updated at 1647533608
+      - name: Run Ansible for PR
+        id: run-ansble-pr
+        run: AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} aws ecs run-task --cluster python --launch-type FARGATE --task-definition arn:aws:ecs:us-east-1:531133914787:task-definition/python:1 --network-configuration 'awsvpcConfiguration={subnets=[subnet-072107252df3c7e87,subnet-03b71dab2f9a1bb6f],securityGroups=[sg-05bd0031419bb91c5],assignPublicIp=ENABLED}'
+        needs: terraform
+      
+      - name: Update Pull Request
+        uses: actions/github-script@0.9.0
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            const output = `#### Packer Format and Style 🖌\`${{ steps.run-ansible-pr.outcome }}\`
+
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+
+      - name: Ansible Check Status
+        if: steps.run-ansible-pr.outcome == 'failure'
+        run: exit 1
+  
+  # ansible:
+  #   name: Ansible
+  #   needs: terraform
+  #   uses: ./.github/workflows/ansible.yml
+  #   with:
+  #     env: test
+  #   secrets:
+  #     ANSIBLE_PRIVATE_KEY: ${{ secrets.ANSIBLE_PRIVATE_KEY }}
+  #     ANSIBLE_PUBLIC_KEY: ${{ secrets.ANSIBLE_PUBLIC_KEY }}
+  #     ANSIBLE_WEBHOOK_URL: ${{ secrets.ANSIBLE_WEBHOOK_URL }}

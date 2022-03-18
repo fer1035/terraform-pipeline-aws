@@ -11,6 +11,10 @@ on:
         required: true
       AWS_SECRET_ACCESS_KEY:
         required: true
+      ANSIBLE_PRIVATE_KEY:
+        required: true
+      ANSIBLE_PUBLIC_KEY:
+        required: true
       ANSIBLE_WEBHOOK_URL:
         required: true
 
@@ -23,6 +27,82 @@ jobs:
 
       - name: Checkout Repository
         uses: actions/checkout@v2
+
+      # install Packer
+      - name: Install Packer
+        run: |
+          curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+          sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+          sudo apt-get update && sudo apt-get install packer -y
+      
+      # run Packer checks
+      - name: Run Packer Checks
+        id: packer-check
+        run: |
+          packer init packer
+          packer fmt packer
+          packer validate packer/docker-python.pkr.hcl
+      
+      - name: Configure Credentials
+        id: credentials-create
+        run: |
+          sed -i 's|AWS_ACCESS_KEY_ID|${{ secrets.AWS_ACCESS_KEY_ID }}|' packer/docker-python.pkr.hcl
+          sed -i 's|AWS_SECRET_ACCESS_KEY|${{ secrets.AWS_SECRET_ACCESS_KEY }}|' packer/docker-python.pkr.hcl
+          sed -i 's|ANSIBLE_PRIVATE_KEY|${{ secrets.ANSIBLE_PRIVATE_KEY }}|' packer/docker-python.pkr.hcl
+          sed -i 's|ANSIBLE_PUBLIC_KEY|${{ secrets.ANSIBLE_PUBLIC_KEY }}|' packer/docker-python.pkr.hcl
+          sed -i 's|ANSIBLE_WEBHOOK_URL|${{ secrets.ANSIBLE_WEBHOOK_URL }}|' packer/run.sh
+
+      # run Packer build for PR
+      - name: Run Packer Build for PR
+        id: packer-build-pr
+        if: github.event_name == 'pull_request'
+        run: |
+          sed -i 's|ANSIBLE_TITLE|Ansible Container Check Output|' packer/run.sh
+          sed -i 's|ANSIBLE_CMD|ansible-playbook playbook.yml --inventory inventory --check|' packer/run.sh
+          packer build packer/docker-python.pkr.hcl
+          sed -i 's|Ansible Container Check Output|ANSIBLE_TITLE|' packer/run.sh
+          sed -i 's|ansible-playbook playbook.yml --inventory inventory --check|ANSIBLE_CMD|' packer/run.sh
+
+      - name: Update Pull Request
+        uses: actions/github-script@0.9.0
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            const output = `#### Packer Format and Style 🖌\`${{ steps.packer-check.outcome }}\`
+
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+
+      - name: Packer Check Status
+        if: steps.packer-check.outcome == 'failure'
+        run: exit 1
+
+      # run Packer build for deploy
+      - name: Run Packer Build for Deploy
+        id: packer-build-deploy
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          sed -i 's|ANSIBLE_TITLE|Ansible Container Deploy Output|' packer/run.sh
+          sed -i 's|ANSIBLE_CMD|ansible-playbook playbook.yml --inventory inventory|' packer/run.sh
+          packer build packer/docker-python.pkr.hcl
+          sed -i 's|Ansible Container Deploy Output|ANSIBLE_TITLE|' packer/run.sh
+          sed -i 's|ansible-playbook playbook.yml --inventory inventory|ANSIBLE_CMD|' packer/run.sh
+      
+      - name: Clear Credentials
+        id: credentials-clear
+        run: |
+          sed -i 's|${{ secrets.AWS_ACCESS_KEY_ID }}|AWS_ACCESS_KEY_ID|' packer/docker-python.pkr.hcl
+          sed -i 's|${{ secrets.AWS_SECRET_ACCESS_KEY }}|AWS_SECRET_ACCESS_KEY|' packer/docker-python.pkr.hcl
+          sed -i 's|${{ secrets.ANSIBLE_PRIVATE_KEY }}|ANSIBLE_PRIVATE_KEY|' packer/docker-python.pkr.hcl
+          sed -i 's|${{ secrets.ANSIBLE_PUBLIC_KEY }}|ANSIBLE_PUBLIC_KEY|' packer/docker-python.pkr.hcl
+          sed -i 's|${{ secrets.ANSIBLE_WEBHOOK_URL }}|ANSIBLE_WEBHOOK_URL|' packer/run.sh
+          rm -f ~/.docker/config.json
 
       # # fix backwards incompatibilities in template
       # - name: Fix Template
@@ -57,49 +137,6 @@ jobs:
       #     arguments: -syntax-only
       #     target: packer/docker-python.pkr.hcl
 
-      # install Packer
-      - name: Install Packer
-        run: |
-          curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
-          sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-          sudo apt-get update && sudo apt-get install packer -y
-      
-      # run Packer checks
-      - name: Run Packer Checks
-        id: packer-check
-        run: |
-          packer init packer
-          packer fmt packer
-          packer validate packer/docker-python.pkr.hcl
-
-      - name: Update Pull Request
-        uses: actions/github-script@0.9.0
-        if: github.event_name == 'pull_request'
-        with:
-          script: |
-            const output = `#### Packer Format and Style 🖌\`${{ steps.packer-check.outcome }}\`
-
-            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
-
-            github.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: output
-            })
-
-      - name: Packer check status
-        if: steps.packer-check.outcome == 'failure'
-        run: exit 1
-      
-      - name: Configure Credentials
-        id: credentials-create
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: |
-          sed -i 's|AWS_ACCESS_KEY_ID|${{ secrets.AWS_ACCESS_KEY_ID }}|' packer/docker-python.pkr.hcl
-          sed -i 's|AWS_SECRET_ACCESS_KEY|${{ secrets.AWS_SECRET_ACCESS_KEY }}|' packer/docker-python.pkr.hcl
-          sed -i 's|ANSIBLE_WEBHOOK_URL|${{ secrets.ANSIBLE_WEBHOOK_URL }}|' packer/run.sh
-      
       # # build artifact
       # - name: Build Artifact
       #   id: packer-build
@@ -111,18 +148,3 @@ jobs:
       #     target: packer/docker-python.pkr.hcl
       #   env:
       #     PACKER_LOG: 1
-      
-      # run Packer build
-      - name: Run Packer Build
-        id: packer-build
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: packer build packer/docker-python.pkr.hcl
-      
-      - name: Clear Credentials
-        id: credentials-clear
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: |
-          sed -i 's|${{ secrets.AWS_ACCESS_KEY_ID }}|AWS_ACCESS_KEY_ID|' packer/docker-python.pkr.hcl
-          sed -i 's|${{ secrets.AWS_SECRET_ACCESS_KEY }}|AWS_SECRET_ACCESS_KEY|' packer/docker-python.pkr.hcl
-          sed -i 's|${{ secrets.ANSIBLE_WEBHOOK_URL }}|ANSIBLE_WEBHOOK_URL|' packer/run.sh
-          rm -f ~/.docker/config.json

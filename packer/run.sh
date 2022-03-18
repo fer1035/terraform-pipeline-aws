@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
 # Test command.
-MESSAGE="Python version: $(python3 --version) on $(date)"
+MESSAGE="$(ANSIBLE_CMD)"
 
 # Set output for Teams.
-TITLE="Container Output"
+TITLE="ANSIBLE_TITLE"
 JSON="{\"title\": \"${TITLE}\", \"text\": \"${MESSAGE}\"}"
 
 # Send output to Teams.

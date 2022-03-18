@@ -38,10 +38,12 @@ build {
   ]
 
   provisioner "file" {
-    sources = [
+    /* sources     = [
       "packer/run.sh"
     ]
-    destination = "/tmp/"
+    destination = "/tmp/" */
+    source      = "packer/run.sh"
+    destination = "/tmp/run.sh"
   }
 
   provisioner "shell" {
@@ -49,7 +51,7 @@ build {
       "FOO=hello world",
     ] */
     inline = [
-      "mv /tmp/packer/run.sh /var/start/run.sh",
+      "mv /tmp/run.sh /var/start/run.sh",
       "chmod +x /var/start/run.sh"
     ]
   }

@@ -37,8 +37,8 @@ jobs:
     environment: test
     steps:
 
-      - name: Run Ansible for PR
-        id: run-ansble-pr
+      - name: Run Ansible
+        id: run-ansble
         run: AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} aws ecs run-task --cluster python --launch-type FARGATE --task-definition arn:aws:ecs:us-east-1:531133914787:task-definition/python:1 --network-configuration 'awsvpcConfiguration={subnets=[subnet-072107252df3c7e87,subnet-03b71dab2f9a1bb6f],securityGroups=[sg-05bd0031419bb91c5],assignPublicIp=ENABLED}'
       
       - name: Update Pull Request
@@ -46,7 +46,7 @@ jobs:
         if: github.event_name == 'pull_request'
         with:
           script: |
-            const output = `#### Packer Format and Style 🖌\`${{ steps.run-ansible-pr.outcome }}\`
+            const output = `#### Packer Format and Style 🖌\`${{ steps.run-ansible.outcome }}\`
 
             *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
 
@@ -58,7 +58,7 @@ jobs:
             })
 
       - name: Ansible Check Status
-        if: steps.run-ansible-pr.outcome == 'failure'
+        if: steps.run-ansible.outcome == 'failure'
         run: exit 1
   
   # ansible:

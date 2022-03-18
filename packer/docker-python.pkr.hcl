@@ -35,11 +35,17 @@ build {
     "source.docker.python"
   ]
 
+  provisioner "shell" {
+    inline = [
+      "mkdir -p /tmp/ansible"
+    ]
+  }
+
   provisioner "file" {
     sources     = [
       "ansible/"
     ]
-    destination = "/tmp/"
+    destination = "/tmp/ansible/"
   }
 
   provisioner "shell" {

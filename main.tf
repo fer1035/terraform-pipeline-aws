@@ -14,11 +14,20 @@ module "endpoint_01" {
   api_url           = module.security_demo.api_url
 }
 output "endpoint_01_url" {
-  value     = module.endpoint_01.api_endpoint
+  value     = module.endpoint_01.security_api_endpoint
   sensitive = false
 }
 
 # Tennis.
 module "tennis" {
   source = "./modules/tennis"
+}
+
+# Container.
+module "container" {
+  source = "./modules/container"
+}
+output "container_task_cli" {
+  value     = module.container.task_cli
+  sensitive = false
 }

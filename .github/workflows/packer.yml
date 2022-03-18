@@ -2,6 +2,10 @@ name: Packer
 
 on:
   workflow_call:
+    inputs:
+      env:
+        required: true
+        type: string
     secrets:
       AWS_ACCESS_KEY_ID:
         required: true
@@ -12,7 +16,7 @@ jobs:
   packer:
     name: Packer
     runs-on: ubuntu-latest
-    environment: test
+    environment: ${{ inputs.env }}
     steps:
 
       - name: Checkout Repository

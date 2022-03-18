@@ -2,6 +2,10 @@ name: Terraform
 
 on:
   workflow_call:
+    inputs:
+      env:
+        required: true
+        type: string
     secrets:
       TF_API_TOKEN:
         required: true
@@ -12,7 +16,7 @@ jobs:
   terraform:
     name: Terraform
     runs-on: ubuntu-latest
-    environment: test
+    environment: ${{ inputs.env }}
     steps:
 
       - name: Checkout

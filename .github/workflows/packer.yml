@@ -48,8 +48,8 @@ jobs:
         run: |
           sed -i 's|AWS_ACCESS_KEY_ID|${{ secrets.AWS_ACCESS_KEY_ID }}|' packer/docker-python.pkr.hcl
           sed -i 's|AWS_SECRET_ACCESS_KEY|${{ secrets.AWS_SECRET_ACCESS_KEY }}|' packer/docker-python.pkr.hcl
-          echo ${{ secrets.ANSIBLE_PRIVATE_KEY }} > ansible/id_rsa
-          echo ${{ secrets.ANSIBLE_PUBLIC_KEY }} > ansible/id_rsa.pub
+          echo "${{ secrets.ANSIBLE_PRIVATE_KEY }}" > ansible/id_rsa
+          echo "${{ secrets.ANSIBLE_PUBLIC_KEY }}" > ansible/id_rsa.pub
           sed -i 's|ANSIBLE_WEBHOOK_URL|${{ secrets.ANSIBLE_WEBHOOK_URL }}|' ansible/run.sh
 
       # run Packer build for PR

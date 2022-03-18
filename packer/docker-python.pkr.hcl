@@ -61,7 +61,7 @@ build {
       "mkdir -p ~/.ssh",
       "mv /var/ansible/id_rsa  ~/.ssh/",
       "mv /var/ansible/id_rsa.pub  ~/.ssh/",
-      "sed -i 's/\\n/\n/g' ~/.ssh/id_rsa",
+      "sed -i \"s/\\n/\n/g\" ~/.ssh/id_rsa",
       "chmod 600 ~/.ssh/id_rsa",
       "chmod 600 ~/.ssh/id_rsa.pub"
     ]

@@ -49,7 +49,7 @@ build {
       "FOO=hello world",
     ] */
     inline = [
-      "mv /tmp/run.sh /var/start/run.sh",
+      "mv /tmp/packer/run.sh /var/start/run.sh",
       "chmod +x /var/start/run.sh"
     ]
   }

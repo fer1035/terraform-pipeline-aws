@@ -8,4 +8,4 @@ TITLE="Container Output"
 JSON="{\"title\": \"${TITLE}\", \"text\": \"${MESSAGE}\"}"
 
 # Send output to Teams.
-curl -H "Content-Type: application/json" -d "${JSON}" "${WEBHOOK}"
+curl -H "Content-Type: application/json" -d "${JSON}" "ANSIBLE_WEBHOOK_URL"

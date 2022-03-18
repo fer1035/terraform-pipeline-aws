@@ -17,12 +17,6 @@ jobs:
 
       - name: Checkout Repository
         uses: actions/checkout@v2
-      
-      - name: Configure Credentials
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: |
-          sed -i 's|AWS_ACCESS_KEY_ID|${{ secrets.AWS_ACCESS_KEY_ID }}|' packer/docker-python.pkr.hcl
-          sed -i 's|AWS_SECRET_ACCESS_KEY|${{ secrets.AWS_SECRET_ACCESS_KEY }}|' packer/docker-python.pkr.hcl
 
       # # fix backwards incompatibilities in template
       # - name: Fix Template
@@ -31,45 +25,45 @@ jobs:
       #     command: fix
       #     target: packer
 
-      # # validate templates
-      # - name: Validate Template
-      #   uses: hashicorp/packer-github-actions@master
-      #   with:
-      #     command: validate
-      #     arguments: -syntax-only
-      #     target: packer/docker-python.pkr.hcl
-
-      # # build artifact
-      # - name: Build Artifact
-      #   uses: hashicorp/packer-github-actions@master
-      #   with:
-      #     command: build
-      #     arguments: "-color=false -on-error=abort"
-      #     target: packer/docker-python.pkr.hcl
-      #   env:
-      #     PACKER_LOG: 0
-
-      # # install AWSCLI
-      # - name: Install AWSCLI
-      #   run: |
-      #     curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-      #     unzip awscliv2.zip
-      #     sudo ./aws/install --update
-
-      # install Packer
-      - name: Install Packer
-        run: |
-          curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
-          sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-          sudo apt-get update && sudo apt-get install packer -y
+      # initialize Packer
+      - name: Initialize Packer
+        id: packer-init
+        uses: hashicorp/packer-github-actions@master
+        with:
+          command: init
+          target: packer
       
-      # run Packer checks
-      - name: Run Packer Checks
-        id: packer-check
-        run: |
-          packer init packer
-          packer fmt packer
-          packer validate packer/docker-python.pkr.hcl
+      # check templates formatting
+      - name: Check Templates Formatting
+        id: packer-fmt
+        uses: hashicorp/packer-github-actions@master
+        with:
+          command: fmt
+          target: packer
+      
+      # validate template
+      - name: Validate Template
+        id: packer-validate
+        uses: hashicorp/packer-github-actions@master
+        with:
+          command: validate
+          arguments: -syntax-only
+          target: packer/docker-python.pkr.hcl
+
+      # # install Packer
+      # - name: Install Packer
+      #   run: |
+      #     curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+      #     sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+      #     sudo apt-get update && sudo apt-get install packer -y
+      
+      # # run Packer checks
+      # - name: Run Packer Checks
+      #   id: packer-check
+      #   run: |
+      #     packer init packer
+      #     packer fmt packer
+      #     packer validate packer/docker-python.pkr.hcl
 
       - name: Update Pull Request
         uses: actions/github-script@0.9.0
@@ -88,19 +82,38 @@ jobs:
             })
 
       - name: Packer check status
-        if: steps.packer-check.outcome == 'failure'
+        if: steps.packer-validate.outcome == 'failure'
         run: exit 1
       
-      # run Packer build
-      - name: Run Packer Build
+      - name: Configure Credentials
+        id: credentials-create
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: packer build packer/docker-python.pkr.hcl
+        run: |
+          sed -i 's|AWS_ACCESS_KEY_ID|${{ secrets.AWS_ACCESS_KEY_ID }}|' packer/docker-python.pkr.hcl
+          sed -i 's|AWS_SECRET_ACCESS_KEY|${{ secrets.AWS_SECRET_ACCESS_KEY }}|' packer/docker-python.pkr.hcl
+      
+      # build artifact
+      - name: Build Artifact
+        id: packer-build
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: hashicorp/packer-github-actions@master
+        with:
+          command: build
+          arguments: "-color=false -on-error=abort"
+          target: packer/docker-python.pkr.hcl
+        env:
+          PACKER_LOG: 0
+      
+      # # run Packer build
+      # - name: Run Packer Build
+      #   id: packer-build
+      #   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      #   run: packer build packer/docker-python.pkr.hcl
       
       - name: Clear Credentials
+        id: credentials-clear
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
           sed -i 's|${{ secrets.AWS_ACCESS_KEY_ID }}|AWS_ACCESS_KEY_ID|' packer/docker-python.pkr.hcl
           sed -i 's|${{ secrets.AWS_SECRET_ACCESS_KEY }}|AWS_SECRET_ACCESS_KEY|' packer/docker-python.pkr.hcl
           rm -f ~/.docker/config.json
-
-      # additional steps to process artifacts

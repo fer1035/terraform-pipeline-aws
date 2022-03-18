@@ -60,14 +60,3 @@ jobs:
       - name: Ansible Check Status
         if: steps.run-ansible.outcome == 'failure'
         run: exit 1
-  
-  # ansible:
-  #   name: Ansible
-  #   needs: terraform
-  #   uses: ./.github/workflows/ansible.yml
-  #   with:
-  #     env: test
-  #   secrets:
-  #     ANSIBLE_PRIVATE_KEY: ${{ secrets.ANSIBLE_PRIVATE_KEY }}
-  #     ANSIBLE_PUBLIC_KEY: ${{ secrets.ANSIBLE_PUBLIC_KEY }}
-  #     ANSIBLE_WEBHOOK_URL: ${{ secrets.ANSIBLE_WEBHOOK_URL }}

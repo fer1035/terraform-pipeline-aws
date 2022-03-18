@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
-# Test command.
-MESSAGE="$(date)"
+# Ansible command.
+ANSIBLE_CMD > log.txt
+MESSAGE="$(cat log.txt)"
 
 # Set output for Teams.
 TITLE="ANSIBLE_TITLE"

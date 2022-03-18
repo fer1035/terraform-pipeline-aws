@@ -25,7 +25,8 @@ source "docker" "python" {
     "ONBUILD RUN date",
     "CMD [\"nginx\", \"-g\", \"daemon off;\"]",
     "ENTRYPOINT /var/www/start.sh" */
-    "ONBUILD RUN apt-get update && apt-get upgrade -y && python3 -m pip install --upgrade pip",
+    "ONBUILD RUN apt-get update && apt-get install curl -y && python3 -m pip install --upgrade pip",
+    "WORKDIR /var/start",
     "ENTRYPOINT /var/start/run.sh"
   ]
 }

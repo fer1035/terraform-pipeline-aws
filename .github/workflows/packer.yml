@@ -20,6 +20,7 @@ jobs:
 
       # # fix backwards incompatibilities in template
       # - name: Fix Template
+      #   id: packer-fix
       #   uses: hashicorp/packer-github-actions@master
       #   with:
       #     command: fix

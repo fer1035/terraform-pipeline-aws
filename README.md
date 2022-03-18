@@ -4,11 +4,11 @@ Terraform pipeline for AWS.
 
 ---
 
-## Changelog
+## Latest Changes
 
-1. Added Ansible pipeline.
-2. Added gating to pipelines.
-3. Restructured codes and variables.
+1. Added container module.
+2. Added Packer pipeline.
+2. Combined pipelines using caller workflow.
 4. Updated [README](README.md) to reflect changes.
 
 ## Overview
@@ -19,6 +19,7 @@ Terraform pipelining experiments - provision resources in a target AWS environme
 
 1. [API](modules/security_demo_endpoint/) application security [implementations](modules/security_demo/)
 2. Event-driven [infrastructure](modules/tennis/)
+3. Container [cluster and task](modules/container/)
 
 ## Contribute
 
@@ -51,8 +52,20 @@ Terraform pipelining experiments - provision resources in a target AWS environme
 
     - Both of the existing pipelines now require approvals to execute Pull Requests and merges to the **main** branch for the specified environment. You can target a different environment (or none at all), but you will need to specify your own variables as the existing ones are specific to the current environment.
 
-## Extras
+## Pipelines
 
-1. Ansible Pipeline
+1. Terraform Pipeline
+
+    The [terraform.yml](.github/workflows/terraform.yml) pipeline provisions AWS resources descibed in [main.tf](main.tf).
+
+2. Ansible Pipeline
 
     The [ansible.yml](.github/workflows/ansible.yml) pipeline runs the Ansible [playbook](ansible/playbook.yml) in the ansible directory. The credentials are specific to its current target, so you will have to update the pipeline to use your own credentials for your own targets to test it.
+
+3. Packer Pipeline
+
+    The [packer.yml](.github/workflows/packer.yml) pipeline creates a container image and pushes it to ECR.
+
+4. CI/CD Pipeline
+
+    The [cicd.yml](.github/workflows/cicd.yml) executes all the other pipelines using the caller workflow. The order is Packer -> Terraform -> Ansible.

@@ -25,7 +25,7 @@ source "docker" "python" {
     "ONBUILD RUN date",
     "CMD [\"nginx\", \"-g\", \"daemon off;\"]",
     "ENTRYPOINT /var/www/start.sh" */
-    "ENTRYPOINT bash /var/ansible/run.sh"
+    "ENTRYPOINT /var/ansible/run.sh"
   ]
 }
 
@@ -58,6 +58,7 @@ build {
       "python3 -m pip install --upgrade pip",
       "python3 -m pip install ansible",
       "mv /tmp/ansible/ /var/",
+      "chmod +x /var/ansible/run.sh",
       "mkdir -p ~/.ssh",
       "mv /var/ansible/id_rsa  ~/.ssh/",
       "mv /var/ansible/id_rsa.pub  ~/.ssh/",

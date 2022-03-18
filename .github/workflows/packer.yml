@@ -103,7 +103,7 @@ jobs:
       #     arguments: "-color=false -on-error=abort"
       #     target: packer/docker-python.pkr.hcl
       #   env:
-      #     PACKER_LOG: 0
+      #     PACKER_LOG: 1
       
       # run Packer build
       - name: Run Packer Build

@@ -50,18 +50,18 @@ jobs:
           sed -i 's|AWS_SECRET_ACCESS_KEY|${{ secrets.AWS_SECRET_ACCESS_KEY }}|' packer/docker-python.pkr.hcl
           echo "${{ secrets.ANSIBLE_PRIVATE_KEY }}" > ansible/id_rsa
           echo "${{ secrets.ANSIBLE_PUBLIC_KEY }}" > ansible/id_rsa.pub
-          sed -i 's|ANSIBLE_WEBHOOK_URL|${{ secrets.ANSIBLE_WEBHOOK_URL }}|' packer/run.sh
+          sed -i 's|ANSIBLE_WEBHOOK_URL|${{ secrets.ANSIBLE_WEBHOOK_URL }}|' ansible/run.sh
 
       # run Packer build for PR
       - name: Run Packer Build for PR
         id: packer-build-pr
         if: github.event_name == 'pull_request'
         run: |
-          sed -i 's|ANSIBLE_TITLE|Ansible Container Check Output|' packer/run.sh
-          sed -i 's|ANSIBLE_CMD|ansible-playbook playbook.yml --inventory inventory --check|' packer/run.sh
+          sed -i 's|ANSIBLE_TITLE|Ansible Container Check Output|' ansible/run.sh
+          sed -i 's|ANSIBLE_CMD|ansible-playbook playbook.yml --inventory inventory --check|' ansible/run.sh
           packer build packer/docker-python.pkr.hcl
-          sed -i 's|Ansible Container Check Output|ANSIBLE_TITLE|' packer/run.sh
-          sed -i 's|ansible-playbook playbook.yml --inventory inventory --check|ANSIBLE_CMD|' packer/run.sh
+          sed -i 's|Ansible Container Check Output|ANSIBLE_TITLE|' ansible/run.sh
+          sed -i 's|ansible-playbook playbook.yml --inventory inventory --check|ANSIBLE_CMD|' ansible/run.sh
 
       - name: Update Pull Request
         uses: actions/github-script@0.9.0
@@ -88,11 +88,11 @@ jobs:
         id: packer-build-deploy
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
-          sed -i 's|ANSIBLE_TITLE|Ansible Container Deploy Output|' packer/run.sh
-          sed -i 's|ANSIBLE_CMD|ansible-playbook playbook.yml --inventory inventory|' packer/run.sh
+          sed -i 's|ANSIBLE_TITLE|Ansible Container Deploy Output|' ansible/run.sh
+          sed -i 's|ANSIBLE_CMD|ansible-playbook playbook.yml --inventory inventory|' ansible/run.sh
           packer build packer/docker-python.pkr.hcl
-          sed -i 's|Ansible Container Deploy Output|ANSIBLE_TITLE|' packer/run.sh
-          sed -i 's|ansible-playbook playbook.yml --inventory inventory|ANSIBLE_CMD|' packer/run.sh
+          sed -i 's|Ansible Container Deploy Output|ANSIBLE_TITLE|' ansible/run.sh
+          sed -i 's|ansible-playbook playbook.yml --inventory inventory|ANSIBLE_CMD|' ansible/run.sh
       
       - name: Clear Credentials
         id: credentials-clear
@@ -101,7 +101,7 @@ jobs:
           sed -i 's|${{ secrets.AWS_SECRET_ACCESS_KEY }}|AWS_SECRET_ACCESS_KEY|' packer/docker-python.pkr.hcl
           echo " " > ansible/id_rsa
           echo " " > ansible/id_rsa.pub
-          sed -i 's|${{ secrets.ANSIBLE_WEBHOOK_URL }}|ANSIBLE_WEBHOOK_URL|' packer/run.sh
+          sed -i 's|${{ secrets.ANSIBLE_WEBHOOK_URL }}|ANSIBLE_WEBHOOK_URL|' ansible/run.sh
           rm -f ~/.docker/config.json
 
       # # fix backwards incompatibilities in template

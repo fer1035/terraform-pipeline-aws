@@ -25,7 +25,7 @@ source "docker" "python" {
     "ONBUILD RUN date",
     "CMD [\"nginx\", \"-g\", \"daemon off;\"]",
     "ENTRYPOINT /var/www/start.sh" */
-    "ENTRYPOINT bash /var/start/run.sh"
+    "ENTRYPOINT bash /var/ansible/run.sh"
   ]
 }
 
@@ -37,7 +37,6 @@ build {
 
   provisioner "file" {
     sources     = [
-      "packer/run.sh",
       "ansible/"
     ]
     destination = "/tmp/"
@@ -52,9 +51,7 @@ build {
       "apt-get install openssh-client curl python3 -y",
       "python3 -m pip install --upgrade pip",
       "python3 -m pip install ansible",
-      "mkdir -p /var/start",
-      "mv /tmp/run.sh /var/start/run.sh",
-      "mv /tmp/ansible/* /var/start/",
+      "mv /tmp/ansible/ /var/",
       "mkdir -p ~/.ssh",
       "mv /var/start/id_rsa*  ~/.ssh/",
       "sed -i 's/\\n/\n/g' ~/.ssh/id_rsa",

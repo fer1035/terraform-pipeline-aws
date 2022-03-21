@@ -18,7 +18,11 @@ output "endpoint_01_url" {
   sensitive = false
 }
 
-/* # Tennis.
-module "tennis" {
-  source = "./modules/tennis"
-} */
+# Ansible.
+module "ansible" {
+  source = "./modules/container"
+}
+output "ansible_task" {
+  value     = module.ansible.task_cli
+  sensitive = false
+}

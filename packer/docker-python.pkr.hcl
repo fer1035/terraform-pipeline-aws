@@ -9,10 +9,11 @@ packer {
 
 variable "docker_image" {
   type    = string
-  default = "python:slim-buster"
+  /* default = "python:slim-buster" */
+  default = "531133914787.dkr.ecr.us-east-1.amazonaws.com/packer-test:latest"
 }
 
-source "docker" "python" {
+source "docker" "ansible" {
   image   = var.docker_image
   commit  = true
   changes = [
@@ -33,7 +34,7 @@ source "docker" "python" {
 build {
   /* name    = "python-host"  //arbitrary for logging purposes */
   sources = [
-    "source.docker.python"
+    "source.docker.ansible"
   ]
 
   provisioner "shell" {
@@ -54,10 +55,11 @@ build {
       "FOO=hello world",
     ] */
     inline = [
-      "apt-get update",
+      /* "apt-get update",
       "apt-get install openssh-client curl python3 -y",
       "python3 -m pip install --upgrade pip",
-      "python3 -m pip install ansible",
+      "python3 -m pip install ansible", */
+      "rm -rf /var/ansible/",
       "mv /tmp/ansible/ /var/",
       "chmod +x /var/ansible/run.sh",
       "mkdir -p ~/.ssh",
@@ -76,7 +78,7 @@ build {
     post-processor "docker-tag" {
         repository = "531133914787.dkr.ecr.us-east-1.amazonaws.com/packer-test"
         tags       = [
-          "latest"
+          "ansible"
         ]
     }
     post-processor "docker-push" {

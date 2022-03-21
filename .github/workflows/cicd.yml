@@ -46,7 +46,7 @@ jobs:
         run: |
           AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 531133914787.dkr.ecr.us-east-1.amazonaws.com
           docker pull 531133914787.dkr.ecr.us-east-1.amazonaws.com/packer-test:latest
-          docker run -t -i 531133914787.dkr.ecr.us-east-1.amazonaws.com/packer-test:latest
+          docker run 531133914787.dkr.ecr.us-east-1.amazonaws.com/packer-test:latest
           docker rm -vf $(docker ps -aq)
           docker rmi -f $(docker images -aq)
           rm -f ~/.docker/config.json

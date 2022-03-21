@@ -3,6 +3,9 @@
 # Ansible command.
 ANSIBLE_CMD > log.txt
 
+# Print to stdout.
+cat log.txt
+
 # Format output structure.
 sed -i 's/\*//g' log.txt
 sed -i 's/\"//g' log.txt

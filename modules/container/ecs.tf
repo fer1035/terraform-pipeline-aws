@@ -25,35 +25,6 @@ resource "aws_ecs_cluster" "cluster" {
 }
 
 resource "aws_ecs_task_definition" "task" {
-  family                = var.family_name
-  container_definitions = jsonencode([
-    {
-      name      = var.family_name
-      image     = var.image_name
-      cpu       = 10
-      memory    = 512
-      essential = true
-      /* portMappings = [
-        {
-          containerPort = 80
-          hostPort      = 80
-        }
-      ] */
-    }
-  ])
-
-  /* volume {
-    name      = "service-storage"
-    host_path = "/ecs/service-storage"
-  }
-
-  placement_constraints {
-    type       = "memberOf"
-    expression = "attribute:ecs.availability-zone in [us-west-2a, us-west-2b]"
-  } */
-}
-
-/* resource "aws_ecs_task_definition" "task" {
   family                   = var.family_name
   requires_compatibilities = ["FARGATE"]
   cpu                      = 256
@@ -69,7 +40,7 @@ resource "aws_ecs_task_definition" "task" {
       workingDirectory = "/ansible"
     }
   ])
-} */
+}
 
 /* resource "aws_ecs_service" "service" {
   name                 = var.family_name

@@ -4,6 +4,7 @@
 ANSIBLE_CMD > log.txt
 
 # Format output structure.
+sed -i 's/\*//g' log.txt
 MESSAGE="$(cat log.txt)"
 MESSAGE="${MESSAGE//$'\n'/<br>}"
 

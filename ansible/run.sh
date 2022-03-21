@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Ansible command.
-MESSAGE=$(ANSIBLE_CMD)
+MESSAGE="$(ANSIBLE_CMD)"
 
 # Format output structure.
 MESSAGETXT="$(echo $MESSAGE | sed 's/*//g' | sed 's/\"//g')"

@@ -59,6 +59,7 @@ build {
       "apt-get install openssh-client curl python3 -y",
       "python3 -m pip install --upgrade pip",
       "python3 -m pip install ansible", */
+      "rm -rf /var/ansible/"
       "mv /tmp/ansible/ /var/",
       "chmod +x /var/ansible/run.sh",
       "mkdir -p ~/.ssh",

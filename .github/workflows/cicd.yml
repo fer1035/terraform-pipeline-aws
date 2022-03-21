@@ -19,7 +19,7 @@ jobs:
   
   packer:
     name: Packer
-    needs: terraform
+    # needs: terraform
     uses: ./.github/workflows/packer.yml
     with:
       env: test

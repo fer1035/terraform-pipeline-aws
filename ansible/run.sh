@@ -4,7 +4,7 @@
 MESSAGE=$(ANSIBLE_CMD)
 
 # Format output structure.
-MESSAGETXT="$(echo MESSAGE | sed 's/\*//g' | sed 's/\"//g')"
+MESSAGETXT="$(echo $MESSAGE | sed 's/\*//g' | sed 's/\"//g')"
 MESSAGETXT="${MESSAGETXT//$'\n'/<br>}"
 
 # Send output to Teams.

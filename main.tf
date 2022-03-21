@@ -18,16 +18,7 @@ output "endpoint_01_url" {
   sensitive = false
 }
 
-# Tennis.
+/* # Tennis.
 module "tennis" {
   source = "./modules/tennis"
-}
-
-# Container.
-module "container" {
-  source = "./modules/container"
-}
-output "container_task_cli" {
-  value     = module.container.task_cli
-  sensitive = false
-}
+} */

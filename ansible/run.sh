@@ -2,11 +2,16 @@
 
 # Ansible command.
 ANSIBLE_CMD > log.txt
-MESSAGE="$(cat log.txt)"
 
-# Set output for Teams.
-TITLE="ANSIBLE_TITLE"
-JSON="{\"title\": \"${TITLE}\", \"text\": \"${MESSAGE}\"}"
+# Print to stdout.
+cat log.txt
+
+# Format output structure.
+sed -i 's/\*//g' log.txt
+sed -i 's/\"//g' log.txt
+sed -i "s/\'//g" log.txt
+MESSAGE="$(cat log.txt)"
+MESSAGE="${MESSAGE//$'\n'/<br>}"
 
 # Send output to Teams.
-curl -H "Content-Type: application/json" -d "${JSON}" "ANSIBLE_WEBHOOK_URL"
+curl -X POST -H "Content-Type: application/json" -d "{\"@context\": \"http://schema.org/extensions\",\"@type\": \"MessageCard\", \"title\":\"ANSIBLE_TITLE\", \"text\": \"${MESSAGE}\"}" "ANSIBLE_WEBHOOK_URL"

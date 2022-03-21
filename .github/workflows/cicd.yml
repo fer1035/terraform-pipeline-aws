@@ -30,33 +30,33 @@ jobs:
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
       TF_GITHUB_TOKEN: ${{ secrets.TF_GITHUB_TOKEN }}
   
-  ansible:
-    name: AnsibleContainer
-    needs: terraform
-    runs-on: ubuntu-latest
-    environment: test
-    steps:
+  # ansible:
+  #   name: AnsibleContainer
+  #   needs: terraform
+  #   runs-on: ubuntu-latest
+  #   environment: test
+  #   steps:
 
-      - name: Run Ansible
-        id: run-ansible
-        run: AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} aws ecs run-task --region us-east-1 --cluster ansible --launch-type FARGATE --task-definition arn:aws:ecs:us-east-1:531133914787:task-definition/ansible:1 --network-configuration 'awsvpcConfiguration={subnets=[subnet-072107252df3c7e87,subnet-03b71dab2f9a1bb6f],securityGroups=[sg-05bd0031419bb91c5],assignPublicIp=ENABLED}'
+  #     - name: Run Ansible
+  #       id: run-ansible
+  #       run: AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} aws ecs run-task --region us-east-1 --cluster ansible --launch-type FARGATE --task-definition arn:aws:ecs:us-east-1:531133914787:task-definition/ansible:1 --network-configuration 'awsvpcConfiguration={subnets=[subnet-072107252df3c7e87,subnet-03b71dab2f9a1bb6f],securityGroups=[sg-05bd0031419bb91c5],assignPublicIp=ENABLED}'
       
-      - name: Update Pull Request
-        uses: actions/github-script@0.9.0
-        if: github.event_name == 'pull_request'
-        with:
-          script: |
-            const output = `#### Ansible Container Execution 🖌\`${{ steps.run-ansible.outcome }}\`
+  #     - name: Update Pull Request
+  #       uses: actions/github-script@0.9.0
+  #       if: github.event_name == 'pull_request'
+  #       with:
+  #         script: |
+  #           const output = `#### Ansible Container Execution 🖌\`${{ steps.run-ansible.outcome }}\`
 
-            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+  #           *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
 
-            github.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: output
-            })
+  #           github.issues.createComment({
+  #             issue_number: context.issue.number,
+  #             owner: context.repo.owner,
+  #             repo: context.repo.repo,
+  #             body: output
+  #           })
 
-      - name: Ansible Check Status
-        if: steps.run-ansible.outcome == 'failure'
-        run: exit 1
+  #     - name: Ansible Check Status
+  #       if: steps.run-ansible.outcome == 'failure'
+  #       run: exit 1

@@ -12,9 +12,6 @@ on:
       ecr:
         required: true
         type: string
-      image_name:
-        required: true
-        type: string
       family:
         required: true
         type: string
@@ -69,7 +66,6 @@ jobs:
         id: packer-template
         run: |
           sed -i 's|ECR_REPO|${{ inputs.ecr }}|g' $PACKER_TEMPLATE
-          sed -i 's|IMAGE_NAME|${{ inputs.image_name }}|g' $PACKER_TEMPLATE
           sed -i 's|DEFAULT_TAG|${{ inputs.default_tag }}|g' $PACKER_TEMPLATE
           sed -i 's|FAMILY|${{ inputs.family }}|g' $PACKER_TEMPLATE
       

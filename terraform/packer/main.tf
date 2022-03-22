@@ -1,4 +1,4 @@
 # Ansible.
-module "ansible" {
+module "ansiblecontainer" {
   source = "./modules/container"
 }

@@ -76,7 +76,7 @@ jobs:
           --cluster $FAMILY \
           --launch-type $LAUNCH_TYPE \
           --task-definition arn:aws:ecs:$REGION:$ACCOUNT_ID:task-definition/$FAMILY \
-          --network-configuration "awsvpcConfiguration={subnets=[$SUBNET_1,SUBNET_2],securityGroups=[$SEC_GRP],assignPublicIp=$PUBLIC_IP}"
+          --network-configuration "awsvpcConfiguration={subnets=[$SUBNET_1, $SUBNET_2], securityGroups=[$SEC_GRP], assignPublicIp=$PUBLIC_IP}"
       
       - name: Update Pull Request
         uses: actions/github-script@0.9.0

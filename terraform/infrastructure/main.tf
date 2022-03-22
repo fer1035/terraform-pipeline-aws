@@ -1,7 +1,7 @@
 # Main infrastructure layout.
 # Create modules for your projects and call them here.
 
-# Security demonstrator API.
+/* # Security demonstrator API.
 module "security_demo" {
   source = "./modules/security_demo"
 }
@@ -16,4 +16,4 @@ module "endpoint_01" {
 output "endpoint_01_url" {
   value     = module.endpoint_01.security_api_endpoint
   sensitive = false
-}
+} */

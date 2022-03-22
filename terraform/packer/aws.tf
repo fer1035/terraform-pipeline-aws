@@ -3,7 +3,7 @@ terraform {
   backend "remote" {
     organization = "fer1035"
     workspaces {
-      name = "aws01"
+      name = "aws02"
     }
   }
   required_providers {
@@ -12,7 +12,7 @@ terraform {
       version = ">= 3.70.0"
     }
   }
-  required_version = ">= 1.1.6"
+  required_version = ">= 1.1.7"
 }
 
 # Call credentials from remote secrets.

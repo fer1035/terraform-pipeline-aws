@@ -12,7 +12,7 @@ terraform {
       version = ">= 3.70.0"
     }
   }
-  required_version = ">= 1.1.6"
+  required_version = ">= 1.1.7"
 }
 
 # Call credentials from remote secrets.

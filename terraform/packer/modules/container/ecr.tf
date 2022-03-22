@@ -10,7 +10,11 @@ resource "aws_ecr_repository_policy" "policy" {
   "Statement": [
     {
       "Effect": "Allow",
-      "Principal": "*",
+      "Principal": {
+        "AWS": [
+          "arn:aws:iam::${var.account_id}:user/${var.username}"
+        ]
+      },
       "Action": [
         "ecr:GetDownloadUrlForLayer",
         "ecr:BatchGetImage",

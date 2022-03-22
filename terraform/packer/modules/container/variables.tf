@@ -1,3 +1,13 @@
+variable "account_id" {
+    type    = string
+    default = "ACCOUNT_ID"
+}
+
+variable "username" {
+    type    = string
+    default = "USERNAME"
+}
+
 variable "family_name" {
     type    = string
     default = "FAMILY"

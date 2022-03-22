@@ -1,0 +1,14 @@
+variable "family_name" {
+    type    = string
+    default = "FAMILY"
+}
+
+variable "default_tag" {
+    type    = string
+    default = "DEFAULT_TAG"
+}
+
+variable "launch_type" {
+    type    = string
+    default = "LAUNCH_TYPE"
+}

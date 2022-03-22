@@ -9,6 +9,7 @@ on:
 env:
   ENVIRO: test
   ACCOUNT_ID: '531133914787'
+  USERNAME: testUser
   REGION: us-east-1
   FAMILY: ansibleexec
   DEFAULT_TAG: latest
@@ -25,6 +26,8 @@ jobs:
     uses: ./.github/workflows/tf_packer.yml
     with:
       enviro: test
+      account_id: '531133914787'
+      username: testUser
       launch_type: FARGATE
       family: ansibleexec
       default_tag: latest

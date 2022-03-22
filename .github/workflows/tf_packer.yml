@@ -6,6 +6,12 @@ on:
       enviro:
         required: true
         type: string
+      account_id:
+        required: true
+        type: string
+      username:
+        required: true
+        type: string
       launch_type:
         required: true
         type: string
@@ -40,6 +46,8 @@ jobs:
       - name: Update Terraform Variables
         id: terraform-variables
         run: |
+          sed -i 's|ACCOUNT_ID|${{ inputs.account_id }}|g' $VARIABLES_FILE
+          sed -i 's|USERNAME|${{ inputs.username }}|g' $VARIABLES_FILE
           sed -i 's|LAUNCH_TYPE|${{ inputs.launch_type }}|g' $VARIABLES_FILE
           sed -i 's|DEFAULT_TAG|${{ inputs.default_tag }}|g' $VARIABLES_FILE
           sed -i 's|FAMILY|${{ inputs.family }}|g' $VARIABLES_FILE

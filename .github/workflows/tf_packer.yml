@@ -22,7 +22,7 @@ on:
         required: true
 
 env:
-  VARIABLES_FILE: terraform/packer/modules/container/variables.tf
+  VARIABLES_FILE: modules/container/variables.tf
 
 jobs:
   terraform:

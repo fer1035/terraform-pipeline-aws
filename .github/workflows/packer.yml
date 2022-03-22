@@ -3,7 +3,22 @@ name: Packer
 on:
   workflow_call:
     inputs:
-      env:
+      enviro:
+        required: true
+        type: string
+      region:
+        required: true
+        type: string
+      ecr:
+        required: true
+        type: string
+      image_name:
+        required: true
+        type: string
+      family:
+        required: true
+        type: string
+      source_tag:
         required: true
         type: string
     secrets:
@@ -18,11 +33,18 @@ on:
       ANSIBLE_WEBHOOK_URL:
         required: true
 
+env:
+  PACKER_TEMPLATE: packer/docker-python.pkr.hcl
+  RUN_FILE: ansible/run.sh
+  ID_RSA: ansible/id_rsa
+  ID_RSA_PUB: ansible/id_rsa.pub
+  DOCKER_JSON: ~/.docker/config.json
+
 jobs:
   packer:
     name: Packer
     runs-on: ubuntu-latest
-    environment: ${{ inputs.env }}
+    environment: ${{ inputs.enviro }}
     steps:
 
       - name: Checkout Repository
@@ -43,27 +65,35 @@ jobs:
           packer fmt packer
           packer validate packer/docker-python.pkr.hcl
       
+      - name: Update Packer Template
+        id: packer-template
+        run: |
+          sed -i 's|ECR_REPO|${{ inputs.ecr }}|g' $PACKER_TEMPLATE
+          sed -i 's|IMAGE_NAME|${{ inputs.image_name }}|g' $PACKER_TEMPLATE
+          sed -i 's|DEFAULT_TAG|${{ inputs.default_tag }}|g' $PACKER_TEMPLATE
+          sed -i 's|FAMILY|${{ inputs.family }}|g' $PACKER_TEMPLATE
+      
       - name: Configure Credentials
         id: credentials-create
         run: |
-          sed -i 's|AWS_ACCESS_KEY_ID|${{ secrets.AWS_ACCESS_KEY_ID }}|' packer/docker-python.pkr.hcl
-          sed -i 's|AWS_SECRET_ACCESS_KEY|${{ secrets.AWS_SECRET_ACCESS_KEY }}|' packer/docker-python.pkr.hcl
-          echo "${{ secrets.ANSIBLE_PRIVATE_KEY }}" > ansible/id_rsa
-          echo "${{ secrets.ANSIBLE_PUBLIC_KEY }}" > ansible/id_rsa.pub
-          sed -i 's|\\n|\n|g' ansible/id_rsa.pub
-          sed -i 's|ANSIBLE_WEBHOOK_URL|${{ secrets.ANSIBLE_WEBHOOK_URL }}|' ansible/run.sh
+          sed -i 's|AWS_ACCESS_KEY_ID|${{ secrets.AWS_ACCESS_KEY_ID }}|' $PACKER_TEMPLATE
+          sed -i 's|AWS_SECRET_ACCESS_KEY|${{ secrets.AWS_SECRET_ACCESS_KEY }}|' $PACKER_TEMPLATE
+          echo "${{ secrets.ANSIBLE_PRIVATE_KEY }}" > $ID_RSA
+          echo "${{ secrets.ANSIBLE_PUBLIC_KEY }}" > $ID_RSA_PUB
+          sed -i 's|\\n|\n|g' $ID_RSA
+          sed -i 's|ANSIBLE_WEBHOOK_URL|${{ secrets.ANSIBLE_WEBHOOK_URL }}|' $RUN_FILE
 
       # run Packer build for PR
       - name: Run Packer Build for PR
         id: packer-build-pr
         if: github.event_name == 'pull_request'
         run: |
-          sed -i 's|ANSIBLE_TITLE|Ansible Container Check Output|' ansible/run.sh
-          sed -i 's|ANSIBLE_CMD|ansible-playbook playbook.yml --inventory inventory --check|' ansible/run.sh
-          AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 531133914787.dkr.ecr.us-east-1.amazonaws.com
-          packer build packer/docker-python.pkr.hcl
-          sed -i 's|Ansible Container Check Output|ANSIBLE_TITLE|' ansible/run.sh
-          sed -i 's|ansible-playbook playbook.yml --inventory inventory --check|ANSIBLE_CMD|' ansible/run.sh
+          sed -i 's|ANSIBLE_TITLE|Ansible Container Check Output|' $RUN_FILE
+          sed -i 's|ANSIBLE_CMD|ansible-playbook playbook.yml --inventory inventory --check|' $RUN_FILE
+          AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} aws ecr get-login-password --region ${{ inputs.region }} | docker login --username AWS --password-stdin ${{ inputs.ecr }}
+          packer build $PACKER_TEMPLATE
+          sed -i 's|Ansible Container Check Output|ANSIBLE_TITLE|' $RUN_FILE
+          sed -i 's|ansible-playbook playbook.yml --inventory inventory --check|ANSIBLE_CMD|' $RUN_FILE
 
       - name: Update Pull Request
         uses: actions/github-script@0.9.0
@@ -90,64 +120,19 @@ jobs:
         id: packer-build-deploy
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
-          sed -i 's|ANSIBLE_TITLE|Ansible Container Deploy Output|' ansible/run.sh
-          sed -i 's|ANSIBLE_CMD|ansible-playbook playbook.yml --inventory inventory|' ansible/run.sh
+          sed -i 's|ANSIBLE_TITLE|Ansible Container Deploy Output|' $RUN_FILE
+          sed -i 's|ANSIBLE_CMD|ansible-playbook playbook.yml --inventory inventory|' $RUN_FILE
           AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 531133914787.dkr.ecr.us-east-1.amazonaws.com
-          packer build packer/docker-python.pkr.hcl
-          sed -i 's|Ansible Container Deploy Output|ANSIBLE_TITLE|' ansible/run.sh
-          sed -i 's|ansible-playbook playbook.yml --inventory inventory|ANSIBLE_CMD|' ansible/run.sh
+          packer build $PACKER_TEMPLATE
+          sed -i 's|Ansible Container Deploy Output|ANSIBLE_TITLE|' $RUN_FILE
+          sed -i 's|ansible-playbook playbook.yml --inventory inventory|ANSIBLE_CMD|' $RUN_FILE
       
       - name: Clear Credentials
         id: credentials-clear
         run: |
-          sed -i 's|${{ secrets.AWS_ACCESS_KEY_ID }}|AWS_ACCESS_KEY_ID|' packer/docker-python.pkr.hcl
-          sed -i 's|${{ secrets.AWS_SECRET_ACCESS_KEY }}|AWS_SECRET_ACCESS_KEY|' packer/docker-python.pkr.hcl
-          echo " " > ansible/id_rsa
-          echo " " > ansible/id_rsa.pub
-          sed -i 's|${{ secrets.ANSIBLE_WEBHOOK_URL }}|ANSIBLE_WEBHOOK_URL|' ansible/run.sh
-          rm -f ~/.docker/config.json
-
-      # # fix backwards incompatibilities in template
-      # - name: Fix Template
-      #   id: packer-fix
-      #   uses: hashicorp/packer-github-actions@master
-      #   with:
-      #     command: fix
-      #     target: packer
-
-      # # initialize Packer
-      # - name: Initialize Packer
-      #   id: packer-init
-      #   uses: hashicorp/packer-github-actions@master
-      #   with:
-      #     command: init
-      #     target: packer
-      
-      # # check templates formatting
-      # - name: Check Templates Formatting
-      #   id: packer-fmt
-      #   uses: hashicorp/packer-github-actions@master
-      #   with:
-      #     command: fmt
-      #     target: packer
-      
-      # # validate template
-      # - name: Validate Template
-      #   id: packer-validate
-      #   uses: hashicorp/packer-github-actions@master
-      #   with:
-      #     command: validate
-      #     arguments: -syntax-only
-      #     target: packer/docker-python.pkr.hcl
-
-      # # build artifact
-      # - name: Build Artifact
-      #   id: packer-build
-      #   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      #   uses: hashicorp/packer-github-actions@master
-      #   with:
-      #     command: build
-      #     arguments: "-color=false -on-error=abort"
-      #     target: packer/docker-python.pkr.hcl
-      #   env:
-      #     PACKER_LOG: 1
+          sed -i 's|${{ secrets.AWS_ACCESS_KEY_ID }}|AWS_ACCESS_KEY_ID|' $PACKER_TEMPLATE
+          sed -i 's|${{ secrets.AWS_SECRET_ACCESS_KEY }}|AWS_SECRET_ACCESS_KEY|' $PACKER_TEMPLATE
+          echo " " > $ID_RSA
+          echo " " > $ID_RSA_PUB
+          sed -i 's|${{ secrets.ANSIBLE_WEBHOOK_URL }}|ANSIBLE_WEBHOOK_URL|' $RUN_FILE
+          rm -f $DOCKER_JSON

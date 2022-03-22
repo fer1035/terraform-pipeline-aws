@@ -17,12 +17,3 @@ output "endpoint_01_url" {
   value     = module.endpoint_01.security_api_endpoint
   sensitive = false
 }
-
-# Ansible.
-module "ansible" {
-  source = "./modules/container"
-}
-output "ansible_task" {
-  value     = module.ansible.task_cli
-  sensitive = false
-}

@@ -1,25 +1,22 @@
-# terraform-pipeline-aws
+# AWS Infrastructure CI/CD Pipeline
 
-Terraform pipeline for AWS.
+![CI/CD infrastructure diagram](img/cicd.png)
 
----
+## Concept
 
-## Latest Changes
+1. Terraform builds an immutable Ansible container environment.
 
-1. Added container module.
-2. Added Packer pipeline.
-2. Combined pipelines using caller workflow.
-4. Updated [README](README.md) to reflect changes.
+2. Packer pushes Ansible image to the repository.
 
-## Overview
+3. Terraform builds the rest of the infrastructure.
 
-Terraform pipelining experiments - provision resources in a target AWS environment.
+4. The pipeline executes the Ansible task on the infrastructure.
 
-### Current Deployments
+## Testing & Gating
 
-1. [API](modules/security_demo_endpoint/) application security [implementations](modules/security_demo/)
-2. Event-driven [infrastructure](modules/tennis/)
-3. Container [cluster and task](modules/container/)
+1. Only necessary resources are built during Pull Request. The rest are plannings and dry-runs.
+
+2. All steps require approvals to proceed during Pull Request and merge.
 
 ## Contribute
 
@@ -51,21 +48,3 @@ Terraform pipelining experiments - provision resources in a target AWS environme
     - Pull Requests will require all checks to pass before merging.
 
     - Both of the existing pipelines now require approvals to execute Pull Requests and merges to the **main** branch for the specified environment. You can target a different environment (or none at all), but you will need to specify your own variables as the existing ones are specific to the current environment.
-
-## Pipelines
-
-1. Terraform Pipeline
-
-    The [terraform.yml](.github/workflows/terraform.yml) pipeline provisions AWS resources descibed in [main.tf](main.tf).
-
-2. Ansible Pipeline
-
-    The [ansible.yml](.github/workflows/ansible.yml) pipeline runs the Ansible [playbook](ansible/playbook.yml) in the ansible directory. The credentials are specific to its current target, so you will have to update the pipeline to use your own credentials for your own targets to test it.
-
-3. Packer Pipeline
-
-    The [packer.yml](.github/workflows/packer.yml) pipeline creates a container image and pushes it to ECR.
-
-4. CI/CD Pipeline
-
-    The [cicd.yml](.github/workflows/cicd.yml) executes all the other pipelines using the caller workflow. The order is Packer -> Terraform -> Ansible.

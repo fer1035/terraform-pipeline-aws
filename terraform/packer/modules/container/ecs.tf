@@ -1,5 +1,5 @@
 resource "aws_iam_role" "role" {
-  name                = format("%s_ECSTaskRole", var.family_name)
+  name                = "${var.family_name}_ECSTaskRole"
   managed_policy_arns = [
     "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
   ]

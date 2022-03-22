@@ -7,6 +7,7 @@ on:
   pull_request:
 
 env:
+  ENVIRO: test
   ACCOUNT_ID: '531133914787'
   REGION: us-east-1
   FAMILY: ansible
@@ -23,10 +24,10 @@ jobs:
     name: Terraform-Packer
     uses: ./.github/workflows/tf_packer.yml
     with:
-      enviro: test
-      launch_type: $LAUNCH_TYPE
-      family: $FAMILY
-      default_tag: $DEFAULT_TAG
+      enviro: ${{ env.ENVIRO }}
+      launch_type: ${{ env.LAUNCH_TYPE }}
+      family: ${{ env.FAMILY }}
+      default_tag: ${{ env.DEFAULT_TAG }}
     secrets:
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
       TF_GITHUB_TOKEN: ${{ secrets.TF_GITHUB_TOKEN }}
@@ -36,11 +37,11 @@ jobs:
     needs: tf_packer
     uses: ./.github/workflows/packer.yml
     with:
-      enviro: test
-      region: $REGION
-      ecr: $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com
-      family: $FAMILY
-      default_tag: $DEFAULT_TAG
+      enviro: ${{ env.ENVIRO }}
+      region: ${{ env.REGION }}
+      ecr: ${{ env.ACCOUNT_ID }}.dkr.ecr.${{ env.REGION }}.amazonaws.com
+      family: ${{ env.FAMILY }}
+      default_tag: ${{ env.DEFAULT_TAG }}
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -53,7 +54,7 @@ jobs:
     needs: packer
     uses: ./.github/workflows/terraform.yml
     with:
-      enviro: test
+      enviro: ${{ env.ENVIRO }}
     secrets:
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
       TF_GITHUB_TOKEN: ${{ secrets.TF_GITHUB_TOKEN }}
@@ -62,7 +63,7 @@ jobs:
     name: AnsibleContainer
     needs: terraform
     runs-on: ubuntu-latest
-    environment: test
+    environment: ${{ env.ENVIRO }}
     steps:
 
       - name: Run Ansible Task

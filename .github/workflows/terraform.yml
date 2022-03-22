@@ -19,7 +19,7 @@ jobs:
     environment: ${{ inputs.enviro }}
     defaults:
       run:
-        working-directory: terraform/infrastructure
+        working-directory: ./terraform/infrastructure
     steps:
 
       - name: Checkout

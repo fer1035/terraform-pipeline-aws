@@ -31,7 +31,7 @@ jobs:
     environment: ${{ inputs.enviro }}
     defaults:
       run:
-        working-directory: ./terraform/packer
+        working-directory: terraform/packer
     steps:
 
       - name: Checkout

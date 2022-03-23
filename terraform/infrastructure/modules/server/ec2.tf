@@ -13,7 +13,8 @@ echo "${var.public_key}" >> ~/.ssh/authorized_keys
 EOF
 
   network_interface {
-    network_interface_id = aws_network_interface.netif.id
-    device_index         = 0
+    network_interface_id  = aws_network_interface.netif.id
+    device_index          = 0
+    delete_on_termination = false
   }
 }

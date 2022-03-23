@@ -1,2 +1,2 @@
 [test]
-ahmad-jumphost ansible_host=35.209.107.52
+INSTANCE_IP

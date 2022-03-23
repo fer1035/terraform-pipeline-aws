@@ -17,3 +17,7 @@ output "endpoint_01_url" {
   value     = module.endpoint_01.security_api_endpoint
   sensitive = false
 } */
+
+module "server" {
+  source = "./modules/server"
+}

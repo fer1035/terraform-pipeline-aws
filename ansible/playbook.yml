@@ -18,12 +18,12 @@
 #   tags:
 #     - keys
 
-# - name: Get Facts
-#   hosts: test
-#   roles:
-#     - role: get_facts
-#   tags:
-#     - facts
+- name: Get Facts
+  hosts: test
+  roles:
+    - role: get_facts
+  tags:
+    - facts
 
 - name: Create File
   hosts: test

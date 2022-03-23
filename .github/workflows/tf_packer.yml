@@ -43,8 +43,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       
-      - name: Update Terraform Variables
-        id: terraform-variables
+      - name: Update Variables
+        id: variables
         run: |
           sed -i 's|ACCOUNT_ID|${{ inputs.account_id }}|g' $VARIABLES_FILE
           sed -i 's|USERNAME|${{ inputs.username }}|g' $VARIABLES_FILE

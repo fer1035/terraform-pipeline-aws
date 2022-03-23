@@ -21,6 +21,12 @@ on:
       default_tag:
         required: true
         type: string
+      instance_ip:
+        required: true
+        type: string
+      ansible_remote_user:
+        required: true
+        type: string
     secrets:
       TF_API_TOKEN:
         required: true
@@ -29,6 +35,8 @@ on:
 
 env:
   VARIABLES_FILE: modules/container/variables.tf
+  ANSIBLE_INVENTORY: ../../ansible/inventory
+  ANSIBLE_CONFIG: ../../ansible/ansible.cfg
 
 jobs:
   terraform:
@@ -43,14 +51,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       
-      - name: Update Terraform Variables
-        id: terraform-variables
+      - name: Update Variables
+        id: variables
         run: |
           sed -i 's|ACCOUNT_ID|${{ inputs.account_id }}|g' $VARIABLES_FILE
           sed -i 's|USERNAME|${{ inputs.username }}|g' $VARIABLES_FILE
           sed -i 's|LAUNCH_TYPE|${{ inputs.launch_type }}|g' $VARIABLES_FILE
           sed -i 's|DEFAULT_TAG|${{ inputs.default_tag }}|g' $VARIABLES_FILE
           sed -i 's|FAMILY|${{ inputs.family }}|g' $VARIABLES_FILE
+          sed -i 's|INSTANCE_IP|${{ inputs.instance_ip }}|g' $ANSIBLE_INVENTORY
+          sed -i 's|REMOTE_USER|${{ inputs.ansible_remote_user }}|g' $ANSIBLE_CONFIG
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1

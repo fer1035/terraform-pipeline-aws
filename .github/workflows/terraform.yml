@@ -6,11 +6,28 @@ on:
       enviro:
         required: true
         type: string
+      subnet_1:
+        required: true
+        type: string
+      security_group:
+        required: true
+        type: string
+      instance_ip:
+        required: true
+        type: string
+      ami:
+        required: true
+        type: string
     secrets:
       TF_API_TOKEN:
         required: true
       TF_GITHUB_TOKEN:
         required: true
+      ANSIBLE_PUBLIC_KEY:
+        required: true
+
+env:
+  VARIABLES_FILE: modules/server/variables.tf
 
 jobs:
   terraform:
@@ -24,6 +41,15 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v2
+      
+      - name: Update Variables
+        id: variables
+        run: |
+          sed -i 's|SUBNET|${{ inputs.subnet_1 }}|g' $VARIABLES_FILE
+          sed -i 's|SEC_GRP|${{ inputs.security_group }}|g' $VARIABLES_FILE
+          sed -i 's|INSTANCE_IP|${{ inputs.instance_ip }}|g' $VARIABLES_FILE
+          sed -i 's|AMI|${{ inputs.ami }}|g' $VARIABLES_FILE
+          sed -i 's|PUBLIC_KEY|${{ secrets.ANSIBLE_PUBLIC_KEY }}|g' $VARIABLES_FILE
 
       - name: ZIP Lambda function
         id: zip
@@ -97,3 +123,8 @@ jobs:
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve
+      
+      - name: Clear Credentials
+        id: credentials-clear
+        run: |
+          sed -i 's|${{ secrets.ANSIBLE_PUBLIC_KEY }}|PUBLIC_KEY|g' $VARIABLES_FILE

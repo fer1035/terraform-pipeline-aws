@@ -34,8 +34,6 @@ jobs:
       launch_type: FARGATE
       family: ansibleexec
       default_tag: latest
-      instance_ip: '10.192.1.111'
-      ansible_remote_user: ec2-user
     secrets:
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
       TF_GITHUB_TOKEN: ${{ secrets.TF_GITHUB_TOKEN }}
@@ -50,6 +48,8 @@ jobs:
       ecr: 531133914787.dkr.ecr.us-east-1.amazonaws.com
       family: ansibleexec
       default_tag: latest
+      instance_ip: '10.192.1.111'
+      ansible_remote_user: ec2-user
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

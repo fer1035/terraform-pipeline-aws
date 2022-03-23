@@ -18,6 +18,12 @@ on:
       default_tag:
         required: true
         type: string
+      instance_ip:
+        required: true
+        type: string
+      ansible_remote_user:
+        required: true
+        type: string
     secrets:
       AWS_ACCESS_KEY_ID:
         required: true
@@ -36,6 +42,8 @@ env:
   ID_RSA: ansible/id_rsa
   ID_RSA_PUB: ansible/id_rsa.pub
   DOCKER_JSON: ~/.docker/config.json
+  ANSIBLE_INVENTORY: ansible/inventory
+  ANSIBLE_CONFIG: ansible/ansible.cfg
 
 jobs:
   packer:
@@ -62,12 +70,14 @@ jobs:
           packer fmt packer
           packer validate packer/docker-python.pkr.hcl
       
-      - name: Update Packer Template
-        id: packer-template
+      - name: Update Variables
+        id: variables
         run: |
           sed -i 's|ECR_REPO|${{ inputs.ecr }}|g' $PACKER_TEMPLATE
           sed -i 's|DEFAULT_TAG|${{ inputs.default_tag }}|g' $PACKER_TEMPLATE
           sed -i 's|FAMILY|${{ inputs.family }}|g' $PACKER_TEMPLATE
+          sed -i 's|INSTANCE_IP|${{ inputs.instance_ip }}|g' $ANSIBLE_INVENTORY
+          sed -i 's|REMOTE_USER|${{ inputs.ansible_remote_user }}|g' $ANSIBLE_CONFIG
       
       - name: Configure Credentials
         id: credentials-create

@@ -27,3 +27,9 @@ variable "public_key" {
     description = "The public key to attach to the instance."
     default     = "PUBLIC_KEY"
 }
+
+variable "remote_user" {
+    type        = string
+    description = "The user in the target instance for Ansible execution."
+    default     = "REMOTE_USER"
+}

@@ -7,9 +7,9 @@ resource "aws_network_interface" "netif" {
 resource "aws_instance" "instance" {
   ami           = var.ami
   instance_type = "t2.micro"
-  user_data = <<EOF
+  user_data     = <<EOF
 #!/usr/bin/env bash
-echo "${var.public_key}" >> ~/.ssh/authorized_keys
+echo "${var.public_key}" >> /home/${var.remote_user}/.ssh/authorized_keys
 EOF
 
   network_interface {

@@ -67,6 +67,7 @@ jobs:
       security_group: sg-05bd0031419bb91c5
       instance_ip: '10.192.2.111'
       ami: ami-0c02fb55956c7d316
+      ansible_remote_user: ec2-user
     secrets:
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
       TF_GITHUB_TOKEN: ${{ secrets.TF_GITHUB_TOKEN }}

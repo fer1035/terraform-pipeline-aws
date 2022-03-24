@@ -18,6 +18,9 @@ on:
       ami:
         required: true
         type: string
+      ansible_remote_user:
+        required: true
+        type: string
     secrets:
       TF_API_TOKEN:
         required: true
@@ -50,6 +53,7 @@ jobs:
           sed -i 's|INSTANCE_IP|${{ inputs.instance_ip }}|g' $VARIABLES_FILE
           sed -i 's|AMI|${{ inputs.ami }}|g' $VARIABLES_FILE
           sed -i 's|PUBLIC_KEY|${{ secrets.ANSIBLE_PUBLIC_KEY }}|g' $VARIABLES_FILE
+          sed -i 's|REMOTE_USER|${{ inputs.ansible_remote_user }}|g' $VARIABLES_FILE
 
       - name: ZIP Lambda function
         id: zip

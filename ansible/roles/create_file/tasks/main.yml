@@ -1,12 +1,12 @@
 - name: Create directory if it does not exist.
   ansible.builtin.file:
-    path: /home/ignw/mydir
+    path: /tmp/mydir
     state: directory
     mode: "0755"
 
 - name: Touch file, but do not change times.
   ansible.builtin.file:
-    path: /home/ignw/mydir/myfile.txt
+    path: /tmp/mydir/myfile.txt
     state: touch
     mode: u+rw,g-wx,o-wx
     modification_time: preserve
@@ -14,7 +14,7 @@
 
 - name: Touch file, but do not change times.
   ansible.builtin.file:
-    path: /home/ignw/mydir/myfile2.txt
+    path: /tmp/mydir/myfile2.txt
     state: touch
     mode: u+rw,g-wx,o-wx
     modification_time: preserve

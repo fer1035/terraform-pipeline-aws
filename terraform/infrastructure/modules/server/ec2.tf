@@ -8,7 +8,7 @@ resource "aws_instance" "instance" {
   ami           = var.ami
   instance_type = "t2.micro"
   user_data     = <<EOF
-#!/usr/bin/env bash
+#!/bin/bash
 echo "${var.public_key}" >> /home/${var.remote_user}/.ssh/authorized_keys
 EOF
 

@@ -9,13 +9,13 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = ">= 3.70.0"
+      version = ">= 4.7.0"
     }
   }
   required_version = ">= 1.1.7"
 }
 
-# Call credentials from remote secrets.
+/* # Call credentials from remote secrets.
 variable "dev_access_key_id" {
   type      = string
   sensitive = true
@@ -23,17 +23,9 @@ variable "dev_access_key_id" {
 variable "dev_secret_access_key" {
   type      = string
   sensitive = true
-}
+} */
 provider "aws" {
   region     = "us-east-1"
-  access_key = var.dev_access_key_id
-  secret_key = var.dev_secret_access_key
-}
-
-# Declare intrinsic variables.
-data "aws_caller_identity" "current" {}
-data "aws_region" "current" {}
-locals {
-  account_id = data.aws_caller_identity.current.account_id
-  region     = data.aws_region.current.name
+  access_key = var.aws_access_key_id
+  secret_key = var.aws_secret_access_key
 }

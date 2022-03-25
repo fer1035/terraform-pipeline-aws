@@ -52,10 +52,12 @@ jobs:
     steps:
 
       - name: Checkout Repository
+        if: github.event_name == 'pull_request'
         uses: actions/checkout@v2
 
       # install Packer
       - name: Install Packer
+        if: github.event_name == 'pull_request'
         run: |
           curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
           sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
@@ -63,6 +65,7 @@ jobs:
       
       # run Packer checks
       - name: Run Packer Checks
+        if: github.event_name == 'pull_request'
         id: packer-check
         run: |
           packer init packer
@@ -70,6 +73,7 @@ jobs:
           packer validate packer/docker-python.pkr.hcl
       
       - name: Update Variables
+        if: github.event_name == 'pull_request'
         id: variables
         run: |
           sed -i 's|DEFAULT_TAG|${{ inputs.default_tag }}|g' $PACKER_TEMPLATE
@@ -78,6 +82,7 @@ jobs:
           sed -i 's|REMOTE_USER|${{ inputs.ansible_remote_user }}|g' $ANSIBLE_CONFIG
       
       - name: Configure Credentials
+        if: github.event_name == 'pull_request'
         id: credentials-create
         run: |
           sed -i 's|ECR_REPO|${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ inputs.region }}.amazonaws.com|g' $PACKER_TEMPLATE
@@ -116,23 +121,24 @@ jobs:
               body: output
             })
 
-      - name: Packer Check Status
-        if: steps.packer-check.outcome == 'failure'
-        run: exit 1
+      # - name: Packer Check Status
+      #   if: steps.packer-check.outcome == 'failure'
+      #   run: exit 1
 
-      # run Packer build for deploy
-      - name: Run Packer Build for Deploy
-        id: packer-build-deploy
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: |
-          sed -i 's|ANSIBLE_TITLE|Ansible Container Deploy Output|' $RUN_FILE
-          sed -i 's|ANSIBLE_CMD|ansible-playbook playbook.yml --inventory inventory|' $RUN_FILE
-          AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ inputs.region }}.amazonaws.com
-          packer build $PACKER_TEMPLATE
-          sed -i 's|Ansible Container Deploy Output|ANSIBLE_TITLE|' $RUN_FILE
-          sed -i 's|ansible-playbook playbook.yml --inventory inventory|ANSIBLE_CMD|' $RUN_FILE
+      # # run Packer build for deploy
+      # - name: Run Packer Build for Deploy
+      #   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      #   id: packer-build-deploy
+      #   run: |
+      #     sed -i 's|ANSIBLE_TITLE|Ansible Container Deploy Output|' $RUN_FILE
+      #     sed -i 's|ANSIBLE_CMD|ansible-playbook playbook.yml --inventory inventory|' $RUN_FILE
+      #     AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ inputs.region }}.amazonaws.com
+      #     packer build $PACKER_TEMPLATE
+      #     sed -i 's|Ansible Container Deploy Output|ANSIBLE_TITLE|' $RUN_FILE
+      #     sed -i 's|ansible-playbook playbook.yml --inventory inventory|ANSIBLE_CMD|' $RUN_FILE
       
       - name: Clear Credentials
+        if: github.event_name == 'pull_request'
         id: credentials-clear
         run: |
           sed -i 's|${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ inputs.region }}.amazonaws.com|ECR_REPO|g' $PACKER_TEMPLATE

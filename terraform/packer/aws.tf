@@ -3,7 +3,7 @@ terraform {
   backend "remote" {
     organization = "fer1035"
     workspaces {
-      name = "aws01"
+      name = "aws02"
     }
   }
   required_providers {

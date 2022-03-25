@@ -24,7 +24,6 @@ variable "ami" {
 
 variable "public_key" {
     type        = string
-    sensitive   = true
     description = "The public key to attach to the instance."
     default     = "PUBLIC_KEY"
 }

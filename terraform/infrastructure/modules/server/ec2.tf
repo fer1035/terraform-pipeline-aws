@@ -17,4 +17,8 @@ EOF
     device_index          = 0
     delete_on_termination = false
   }
+
+  tags = {
+    Name = "Target Practice"
+  }
 }

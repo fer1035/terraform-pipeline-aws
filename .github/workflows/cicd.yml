@@ -8,8 +8,6 @@ on:
 
 env:
   ENVIRO: test
-  ACCOUNT_ID: '531133914787'
-  USERNAME: testUser
   REGION: us-east-1
   FAMILY: ansibleexec
   DEFAULT_TAG: latest
@@ -29,12 +27,12 @@ jobs:
     uses: ./.github/workflows/tf_packer.yml
     with:
       enviro: test
-      account_id: '531133914787'
-      username: testUser
       launch_type: FARGATE
       family: ansibleexec
       default_tag: latest
     secrets:
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+      AWS_USERNAME: ${{ secrets.AWS_USERNAME }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
@@ -47,12 +45,12 @@ jobs:
     with:
       enviro: test
       region: us-east-1
-      ecr: 531133914787.dkr.ecr.us-east-1.amazonaws.com
       family: ansibleexec
       default_tag: latest
       instance_ip: '10.192.2.111'
       ansible_remote_user: ec2-user
     secrets:
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       ANSIBLE_PRIVATE_KEY: ${{ secrets.ANSIBLE_PRIVATE_KEY }}
@@ -93,7 +91,7 @@ jobs:
           --region $REGION \
           --cluster $FAMILY \
           --launch-type $LAUNCH_TYPE \
-          --task-definition arn:aws:ecs:$REGION:$ACCOUNT_ID:task-definition/$FAMILY \
+          --task-definition arn:aws:ecs:$REGION:${{ secrets.AWS_ACCOUNT_ID }}:task-definition/$FAMILY \
           --network-configuration "awsvpcConfiguration={subnets=[$SUBNET_1, $SUBNET_2], securityGroups=[$SEC_GRP], assignPublicIp=$PUBLIC_IP}"
       
       - name: Update Pull Request

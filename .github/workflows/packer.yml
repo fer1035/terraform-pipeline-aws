@@ -9,9 +9,6 @@ on:
       region:
         required: true
         type: string
-      ecr:
-        required: true
-        type: string
       family:
         required: true
         type: string
@@ -25,6 +22,8 @@ on:
         required: true
         type: string
     secrets:
+      AWS_ACCOUNT_ID:
+        required: true
       AWS_ACCESS_KEY_ID:
         required: true
       AWS_SECRET_ACCESS_KEY:
@@ -73,7 +72,6 @@ jobs:
       - name: Update Variables
         id: variables
         run: |
-          sed -i 's|ECR_REPO|${{ inputs.ecr }}|g' $PACKER_TEMPLATE
           sed -i 's|DEFAULT_TAG|${{ inputs.default_tag }}|g' $PACKER_TEMPLATE
           sed -i 's|FAMILY|${{ inputs.family }}|g' $PACKER_TEMPLATE
           sed -i 's|INSTANCE_IP|${{ inputs.instance_ip }}|g' $ANSIBLE_INVENTORY
@@ -82,6 +80,7 @@ jobs:
       - name: Configure Credentials
         id: credentials-create
         run: |
+          sed -i 's|ECR_REPO|${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ inputs.region }}.amazonaws.com|g' $PACKER_TEMPLATE
           sed -i 's|AWS_ACCESS_KEY_ID|${{ secrets.AWS_ACCESS_KEY_ID }}|' $PACKER_TEMPLATE
           sed -i 's|AWS_SECRET_ACCESS_KEY|${{ secrets.AWS_SECRET_ACCESS_KEY }}|' $PACKER_TEMPLATE
           echo "${{ secrets.ANSIBLE_PRIVATE_KEY }}" > $ID_RSA
@@ -96,7 +95,7 @@ jobs:
         run: |
           sed -i 's|ANSIBLE_TITLE|Ansible Container Check Output|' $RUN_FILE
           sed -i 's|ANSIBLE_CMD|ansible-playbook playbook.yml --inventory inventory --check|' $RUN_FILE
-          AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} aws ecr get-login-password --region ${{ inputs.region }} | docker login --username AWS --password-stdin ${{ inputs.ecr }}
+          AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} aws ecr get-login-password --region ${{ inputs.region }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ inputs.region }}.amazonaws.com
           packer build $PACKER_TEMPLATE
           sed -i 's|Ansible Container Check Output|ANSIBLE_TITLE|' $RUN_FILE
           sed -i 's|ansible-playbook playbook.yml --inventory inventory --check|ANSIBLE_CMD|' $RUN_FILE
@@ -128,7 +127,7 @@ jobs:
         run: |
           sed -i 's|ANSIBLE_TITLE|Ansible Container Deploy Output|' $RUN_FILE
           sed -i 's|ANSIBLE_CMD|ansible-playbook playbook.yml --inventory inventory|' $RUN_FILE
-          AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 531133914787.dkr.ecr.us-east-1.amazonaws.com
+          AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ inputs.region }}.amazonaws.com
           packer build $PACKER_TEMPLATE
           sed -i 's|Ansible Container Deploy Output|ANSIBLE_TITLE|' $RUN_FILE
           sed -i 's|ansible-playbook playbook.yml --inventory inventory|ANSIBLE_CMD|' $RUN_FILE
@@ -136,6 +135,7 @@ jobs:
       - name: Clear Credentials
         id: credentials-clear
         run: |
+          sed -i 's|${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ inputs.region }}.amazonaws.com|ECR_REPO|g' $PACKER_TEMPLATE
           sed -i 's|${{ secrets.AWS_ACCESS_KEY_ID }}|AWS_ACCESS_KEY_ID|' $PACKER_TEMPLATE
           sed -i 's|${{ secrets.AWS_SECRET_ACCESS_KEY }}|AWS_SECRET_ACCESS_KEY|' $PACKER_TEMPLATE
           echo " " > $ID_RSA

@@ -6,9 +6,6 @@ on:
       enviro:
         required: true
         type: string
-      account_id:
-        required: true
-        type: string
       username:
         required: true
         type: string
@@ -22,6 +19,8 @@ on:
         required: true
         type: string
     secrets:
+      AWS_ACCOUNT_ID:
+        required: true
       AWS_ACCESS_KEY_ID:
         required: true
       AWS_SECRET_ACCESS_KEY:
@@ -51,7 +50,6 @@ jobs:
       - name: Update Variables
         id: variables
         run: |
-          sed -i 's|ACCOUNT_ID|${{ inputs.account_id }}|g' $VARIABLES_FILE
           sed -i 's|USERNAME|${{ inputs.username }}|g' $VARIABLES_FILE
           sed -i 's|LAUNCH_TYPE|${{ inputs.launch_type }}|g' $VARIABLES_FILE
           sed -i 's|DEFAULT_TAG|${{ inputs.default_tag }}|g' $VARIABLES_FILE
@@ -60,6 +58,7 @@ jobs:
       - name: Configure Credentials
         id: credentials-create
         run: |
+          sed -i 's|ACCOUNT_ID|${{ secrets.AWS_ACCOUNT_ID }}|g' $VARIABLES_FILE
           sed -i 's|AWS_ACCESS_KEY_ID|${{ secrets.AWS_ACCESS_KEY_ID }}|' $AWS_FILE
           sed -i 's|AWS_SECRET_ACCESS_KEY|${{ secrets.AWS_SECRET_ACCESS_KEY }}|' $AWS_FILE
 
@@ -126,5 +125,6 @@ jobs:
       - name: Clear Credentials
         id: credentials-clear
         run: |
+          sed -i 's|${{ secrets.AWS_ACCOUNT_ID }}|ACCOUNT_ID|g' $VARIABLES_FILE
           sed -i 's|${{ secrets.AWS_ACCESS_KEY_ID }}|AWS_ACCESS_KEY_ID|' $AWS_FILE
           sed -i 's|${{ secrets.AWS_SECRET_ACCESS_KEY }}|AWS_SECRET_ACCESS_KEY|' $AWS_FILE

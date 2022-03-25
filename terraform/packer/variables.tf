@@ -8,10 +8,12 @@ locals {
 
 variable "aws_access_key_id" {
     type      = string
-    default   = AWS_ACCESS_KEY_ID
+    sensitive = true
+    default   = "AWS_ACCESS_KEY_ID"
 }
 
 variable "aws_secret_access_key" {
     type      = string
-    default   = AWS_SECRET_ACCESS_KEY
+    sensitive = true
+    default   = "AWS_SECRET_ACCESS_KEY"
 }

@@ -22,6 +22,10 @@ on:
         required: true
         type: string
     secrets:
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
       TF_API_TOKEN:
         required: true
       TF_GITHUB_TOKEN:
@@ -30,6 +34,7 @@ on:
         required: true
 
 env:
+  AWS_FILE: variables.tf
   VARIABLES_FILE: modules/server/variables.tf
 
 jobs:
@@ -52,8 +57,14 @@ jobs:
           sed -i 's|SEC_GRP|${{ inputs.security_group }}|g' $VARIABLES_FILE
           sed -i 's|INSTANCE_IP|${{ inputs.instance_ip }}|g' $VARIABLES_FILE
           sed -i 's|AMI|${{ inputs.ami }}|g' $VARIABLES_FILE
-          sed -i 's|PUBLIC_KEY|${{ secrets.ANSIBLE_PUBLIC_KEY }}|g' $VARIABLES_FILE
           sed -i 's|REMOTE_USER|${{ inputs.ansible_remote_user }}|g' $VARIABLES_FILE
+      
+      - name: Configure Credentials
+        id: credentials-create
+        run: |
+          sed -i 's|AWS_ACCESS_KEY_ID|${{ secrets.AWS_ACCESS_KEY_ID }}|' $AWS_FILE
+          sed -i 's|AWS_SECRET_ACCESS_KEY|${{ secrets.AWS_SECRET_ACCESS_KEY }}|' $AWS_FILE
+          sed -i 's|PUBLIC_KEY|${{ secrets.ANSIBLE_PUBLIC_KEY }}|g' $VARIABLES_FILE
 
       - name: ZIP Lambda function
         id: zip
@@ -131,4 +142,6 @@ jobs:
       - name: Clear Credentials
         id: credentials-clear
         run: |
+          sed -i 's|${{ secrets.AWS_ACCESS_KEY_ID }}|AWS_ACCESS_KEY_ID|' $AWS_FILE
+          sed -i 's|${{ secrets.AWS_SECRET_ACCESS_KEY }}|AWS_SECRET_ACCESS_KEY|' $AWS_FILE
           sed -i 's|${{ secrets.ANSIBLE_PUBLIC_KEY }}|PUBLIC_KEY|g' $VARIABLES_FILE

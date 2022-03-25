@@ -55,12 +55,12 @@ jobs:
     steps:
 
       - name: Checkout Repository
-        if: github.event_name == 'pull_request' && ${{ inputs.packer_build }} == 'ENABLED'
+        if: github.event_name == 'pull_request' && ${{ inputs.packer_build == 'ENABLED' }}
         uses: actions/checkout@v2
 
       # install Packer
       - name: Install Packer
-        if: github.event_name == 'pull_request' && ${{ inputs.packer_build }} == 'ENABLED'
+        if: github.event_name == 'pull_request' && ${{ inputs.packer_build == 'ENABLED' }}
         run: |
           curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
           sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
@@ -68,7 +68,7 @@ jobs:
       
       # run Packer checks
       - name: Run Packer Checks
-        if: github.event_name == 'pull_request' && ${{ inputs.packer_build }} == 'ENABLED'
+        if: github.event_name == 'pull_request' && ${{ inputs.packer_build == 'ENABLED' }}
         id: packer-check
         run: |
           packer init packer
@@ -76,7 +76,7 @@ jobs:
           packer validate packer/docker-python.pkr.hcl
       
       - name: Update Variables
-        if: github.event_name == 'pull_request' && ${{ inputs.packer_build }} == 'ENABLED'
+        if: github.event_name == 'pull_request' && ${{ inputs.packer_build == 'ENABLED' }}
         id: variables
         run: |
           sed -i 's|DEFAULT_TAG|${{ inputs.default_tag }}|g' $PACKER_TEMPLATE
@@ -85,7 +85,7 @@ jobs:
           sed -i 's|REMOTE_USER|${{ inputs.ansible_remote_user }}|g' $ANSIBLE_CONFIG
       
       - name: Configure Credentials
-        if: github.event_name == 'pull_request' && ${{ inputs.packer_build }} == 'ENABLED'
+        if: github.event_name == 'pull_request' && ${{ inputs.packer_build == 'ENABLED' }}
         id: credentials-create
         run: |
           sed -i 's|ECR_REPO|${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ inputs.region }}.amazonaws.com|g' $PACKER_TEMPLATE
@@ -98,7 +98,7 @@ jobs:
 
       # run Packer build for PR
       - name: Run Packer Build for PR
-        if: github.event_name == 'pull_request' && ${{ inputs.packer_build }} == 'ENABLED'
+        if: github.event_name == 'pull_request' && ${{ inputs.packer_build == 'ENABLED' }}
         id: packer-build-pr
         run: |
           sed -i 's|ANSIBLE_TITLE|Ansible Container Check Output|' $RUN_FILE
@@ -109,7 +109,7 @@ jobs:
           sed -i 's|ansible-playbook playbook.yml --inventory inventory --check|ANSIBLE_CMD|' $RUN_FILE
 
       - name: Update Pull Request
-        if: github.event_name == 'pull_request' && ${{ inputs.packer_build }} == 'ENABLED'
+        if: github.event_name == 'pull_request' && ${{ inputs.packer_build == 'ENABLED' }}
         uses: actions/github-script@0.9.0
         with:
           script: |
@@ -125,12 +125,12 @@ jobs:
             })
 
       # - name: Packer Check Status
-      #   if: steps.packer-check.outcome == 'failure' && ${{ inputs.packer_build }} == 'ENABLED'
+      #   if: steps.packer-check.outcome == 'failure' && ${{ inputs.packer_build == 'ENABLED' }}
       #   run: exit 1
 
       # # run Packer build for deploy
       # - name: Run Packer Build for Deploy
-      #   if: github.ref == 'refs/heads/main' && github.event_name == 'push' && ${{ inputs.packer_build }} == 'ENABLED'
+      #   if: github.ref == 'refs/heads/main' && github.event_name == 'push' && ${{ inputs.packer_build == 'ENABLED' }}
       #   id: packer-build-deploy
       #   run: |
       #     sed -i 's|ANSIBLE_TITLE|Ansible Container Deploy Output|' $RUN_FILE
@@ -141,7 +141,7 @@ jobs:
       #     sed -i 's|ansible-playbook playbook.yml --inventory inventory|ANSIBLE_CMD|' $RUN_FILE
       
       - name: Clear Credentials
-        if: github.event_name == 'pull_request' && ${{ inputs.packer_build }} == 'ENABLED'
+        if: github.event_name == 'pull_request' && ${{ inputs.packer_build == 'ENABLED' }}
         id: credentials-clear
         run: |
           sed -i 's|${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ inputs.region }}.amazonaws.com|ECR_REPO|g' $PACKER_TEMPLATE

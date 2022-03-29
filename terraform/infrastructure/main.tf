@@ -21,3 +21,7 @@ output "endpoint_01_url" {
 module "server" {
   source = "./modules/server"
 }
+
+module "api-container" {
+  source = "./modules/api_container"
+}

@@ -1,4 +1,4 @@
-resource "aws_ecs_task_definition" "task" {
+/* resource "aws_ecs_task_definition" "task" {
   family = var.family_name
   network_mode = "awsvpc"
   requires_compatibilities = ["FARGATE"]
@@ -32,4 +32,4 @@ resource "aws_ecs_service" "service" {
       security_groups = ["sg-0545e89a35792bf63"]
       assign_public_ip = true
   }
-}
+} */

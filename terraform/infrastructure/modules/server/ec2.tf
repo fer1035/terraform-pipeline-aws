@@ -1,4 +1,4 @@
-resource "aws_network_interface" "netif" {
+/* resource "aws_network_interface" "netif" {
   subnet_id       = var.subnet
   private_ips     = [var.instance_ip]
   security_groups = [var.security_group]
@@ -21,4 +21,4 @@ EOF
   tags = {
     Name = "Target Practice"
   }
-}
+} */
